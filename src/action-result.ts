@@ -5,10 +5,12 @@ import {ArmorActionResultState} from './state';
 export class ArmorActionResult {
 	public readonly state: ArmorActionResultState;
 	public code: ArmorActionResultCode;
+	public payload: any;
 
 	constructor(options?: ArmorActionResultOptions) {
 		this.state = new ArmorActionResultState();
 		this.code = ArmorActionResultCode.NOT_SET;
+		this.payload = null;
 	}
 
 	public start(): ArmorActionResult {
@@ -32,6 +34,13 @@ export class ArmorActionResult {
 	}
 
 	public error(errors: Error | Error[]): ArmorActionResult {
+		if (Array.isArray(errors)) {
+			errors.forEach((error: Error) => {
+				this.state.errors.push(error);
+			});
+		} else {
+			this.state.errors.push(errors);
+		}
 		return this;
 	}
 

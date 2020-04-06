@@ -16,7 +16,7 @@ export class ArmorActionResultState {
 
 	public hasFailed(): boolean {
 		const errCount = this.errors.length;
-		if (errCount) {
+		if (!errCount) {
 			return false;
 		}
 
@@ -24,7 +24,7 @@ export class ArmorActionResultState {
 			return false;
 		}
 
-		return errCount >= this.failOnError.threshold;
+		return errCount >= this.failOnError.threshold
 	}
 
 	public parseFailOnError(options?: ArmorActionResultOptions): any {
@@ -32,7 +32,7 @@ export class ArmorActionResultState {
 
 		const defaultValue = {
 			enabled: false,
-			threshold: 0
+			threshold: defaultThreshold
 		};
 
 		if (!options) {
