@@ -44,12 +44,12 @@ export class ArmorActionResult {
 		return this;
 	}
 
-	public failure(): ArmorActionResult {
+	public fail(): ArmorActionResult {
 		this.code = ArmorActionResultCode.FAILURE;
 		return this;
 	}
 
-	public success(): ArmorActionResult {
+	public succeed(): ArmorActionResult {
 		this.code = ArmorActionResultCode.SUCCESS;
 		return this;
 	}
