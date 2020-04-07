@@ -13,10 +13,6 @@ export class ArmorActionResult {
 		this.payload = null;
 	}
 
-	public start(): ArmorActionResult {
-		return this;
-	}
-
 	public message(messages: string | string[]): ArmorActionResult {
 		if (Array.isArray(messages)) {
 			messages.forEach((message: any) => {
