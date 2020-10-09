@@ -1,11 +1,11 @@
-import {ArmorActionResult} from '../src/action-result';
-import {ArmorActionResultCode} from '../src/code';
+import {ActionResult} from '../src/action-result';
+import {ResultCode} from '../src/result-code';
 
-describe('ArmorActionResult', () => {
-	let instance: ArmorActionResult;
+describe('ActionResult', () => {
+	let instance: ActionResult;
 
 	beforeAll(() => {
-		instance = new ArmorActionResult();
+		instance = new ActionResult();
 	});
 
 	describe('Constructor', () => {
@@ -14,7 +14,7 @@ describe('ArmorActionResult', () => {
 		});
 
 		it('should intialize code to NOT_SET', () => {
-			expect(instance.code).toBe(ArmorActionResultCode.NOT_SET);
+			expect(instance.code).toBe(ResultCode.NOT_SET);
 		});
 
 		it('should initialize payload to null', () => {
@@ -24,12 +24,12 @@ describe('ArmorActionResult', () => {
 
 	describe('Implementation', () => {
 		beforeEach(() => {
-			instance.code = ArmorActionResultCode.NOT_SET;
+			instance.code = ResultCode.NOT_SET;
 		});
 
 		describe('error', () => {
 			it('should add error to queue when errors argument is a single error', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				expect(customInstance.state.errors).toEqual([]);
 				const error = new Error('message here');
 				customInstance.error(error);
@@ -37,7 +37,7 @@ describe('ArmorActionResult', () => {
 			});
 
 			it('should add single errors to queue when called multiple times with a single error', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				expect(customInstance.state.errors).toEqual([]);
 				customInstance.error(new Error('message here 1'));
 				customInstance.error(new Error('message here 2'));
@@ -47,7 +47,7 @@ describe('ArmorActionResult', () => {
 			});
 
 			it('should add all errors in error array argument when there are no errors', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				expect(customInstance.state.errors).toEqual([]);
 				customInstance.error([new Error('message'), new Error('more messages')]);
 
@@ -55,7 +55,7 @@ describe('ArmorActionResult', () => {
 			});
 
 			it('should add all errors in error array argument when called multiple times', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				expect(customInstance.state.errors).toEqual([]);
 				customInstance.error([new Error('message 121'), new Error('more messages 441')]);
 				customInstance.error([new Error('message 313'), new Error('more messages 551')]);
@@ -82,9 +82,9 @@ describe('ArmorActionResult', () => {
 					return false;
 				});
 
-				instance.code = ArmorActionResultCode.NOT_SET;
+				instance.code = ResultCode.NOT_SET;
 				instance.complete();
-				expect(instance.code).toBe(ArmorActionResultCode.SUCCESS);
+				expect(instance.code).toBe(ResultCode.SUCCESS);
 			});
 
 			it('should result code to failure when state reports the action failed', () => {
@@ -92,15 +92,15 @@ describe('ArmorActionResult', () => {
 					return true;
 				});
 
-				instance.code = ArmorActionResultCode.SUCCESS;
+				instance.code = ResultCode.SUCCESS;
 				instance.complete();
-				expect(instance.code).toBe(ArmorActionResultCode.FAILURE);
+				expect(instance.code).toBe(ResultCode.FAILURE);
 			});
 		});
 
 		describe('message', () => {
 			it('should add string to messages', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				const message = '10914091409 100914 14481';
 				expect(customInstance.state.messages).toHaveLength(0);
 				customInstance.message(message);
@@ -108,7 +108,7 @@ describe('ArmorActionResult', () => {
 			});
 
 			it('should add all strings in array to messages when messages is empty', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				const messages = ['one', 'two', 'three'];
 				expect(customInstance.state.messages).toHaveLength(0);
 				customInstance.message(messages);
@@ -116,7 +116,7 @@ describe('ArmorActionResult', () => {
 			});
 
 			it('should add all strings in array to messages when messages have already been queued', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				const messages = ['one', 'two', 'three', 'four'];
 				customInstance.message('one');
 				customInstance.message('two');
@@ -126,7 +126,7 @@ describe('ArmorActionResult', () => {
 			});
 
 			it('should not add message when message argument is not a string', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				const message = 4411 as any;
 				expect(customInstance.state.messages).toHaveLength(0);
 				customInstance.message(message);
@@ -134,7 +134,7 @@ describe('ArmorActionResult', () => {
 			});
 
 			it('should not add messages when messages array is non-strings', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				const messages = [111 as any, 333 as any, 4441 as any];
 				customInstance.message('one');
 				expect(customInstance.state.messages).toHaveLength(1);
@@ -143,7 +143,7 @@ describe('ArmorActionResult', () => {
 			});
 
 			it('should add valid string messages when messages array contains valid and invalid data', () => {
-				const customInstance = new ArmorActionResult();
+				const customInstance = new ActionResult();
 				const messages = [111 as any, 333 as any, 'two', 'five'];
 				customInstance.message('one');
 				expect(customInstance.state.messages).toHaveLength(1);
@@ -154,19 +154,19 @@ describe('ArmorActionResult', () => {
 
 		describe('fail', () => {
 			it('should set code to SUCCESS', () => {
-				const customInstance = new ArmorActionResult();
-				expect(customInstance.code).toBe(ArmorActionResultCode.NOT_SET);
+				const customInstance = new ActionResult();
+				expect(customInstance.code).toBe(ResultCode.NOT_SET);
 				customInstance.fail();
-				expect(customInstance.code).toBe(ArmorActionResultCode.FAILURE);
+				expect(customInstance.code).toBe(ResultCode.FAILURE);
 			});
 		});
 
 		describe('success', () => {
 			it('should set code to SUCCESS', () => {
-				const customInstance = new ArmorActionResult();
-				expect(customInstance.code).toBe(ArmorActionResultCode.NOT_SET);
+				const customInstance = new ActionResult();
+				expect(customInstance.code).toBe(ResultCode.NOT_SET);
 				customInstance.succeed();
-				expect(customInstance.code).toBe(ArmorActionResultCode.SUCCESS);
+				expect(customInstance.code).toBe(ResultCode.SUCCESS);
 			});
 		});
 	});

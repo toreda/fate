@@ -1,40 +1,17 @@
-# ArmorJS - Action Result
+# `@toreda/action-result`
 
-![CI](https://github.com/armorjs/action-result/workflows/CI/badge.svg?branch=master) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=armorjs_action-result&metric=coverage)](https://sonarcloud.io/dashboard?id=armorjs_action-result) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=armorjs_action-result&metric=alert_status)](https://sonarcloud.io/dashboard?id=armorjs_action-result)
+![CI](https://github.com/toreda/action-result/workflows/CI/badge.svg?branch=master) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=toreda_action-result&metric=coverage)](https://sonarcloud.io/dashboard?id=toreda_action-result) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=toreda_action-result&metric=alert_status)](https://sonarcloud.io/dashboard?id=toreda_action-result)
 
 
-@armorjs/action-result provides a simple, consistent interface to parse action results when you need more than
-
-## Contents
-- [Examples]
-- [About ArmorJS](#about-armorjs)
-- [Installation](#Installation)
-- [Usage](#usage)
-- [Build](#build)
-- [Testing](#testing)
-- [License](#license)
-
-## Examples
-
-## About ArmorJS
-ArmorJS solves unique challenges in the enterprise node ecosystem. Auditing projects for security, reliability, and even license compatibility are monumental tasks when a project includes thousands of frequently changing dependencies.
-
-ArmorJS standards:
-* Full typescript support.
-* Consistent API between releases.
-* Extremely small footprint (for webpacking).
-* No more than 5 external dependencies (excluding dev dependencies).
-* Compatible with web, node, and serverless deployment.
-* Thorough test coverage.
-* MIT License.
+Simple interface return a result and details or context about the result.
 
 ## Install
 
 ***With yarn (preferred):***
-```yarn add @armorjs/action-result```
+```yarn add @toreda/action-result```
 
 With NPM:
-```npm install @armorjs/action-result```
+```npm install @toreda/action-result```
 
 ## Usage
 
@@ -42,12 +19,12 @@ With NPM:
 
 #### Typescript
 ```
-import { ArmorActionResult } from '@armorjs/action-result';
+import {ActionResult} from '@toreda/action-result';
 ```
 
 #### Node
 ```
-const ArmorConfig = require('@armorjs/action-result');
+const ARConfig = require('@toreda/action-result');
 ```
 
 ## Build
@@ -82,4 +59,4 @@ npm run-script test
 ```
 
 ## License
-[MIT](LICENSE) &copy; Michael Brich
+[MIT](LICENSE) &copy; Toreda, Inc.

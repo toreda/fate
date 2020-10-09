@@ -1,6 +1,6 @@
-export interface ArmorActionResultOptions {
+export interface AROptions {
 	failOnError?: {
 		enabled?: boolean;
-		threshold?: number|string;
-	}
+		threshold?: number | string;
+	};
 }

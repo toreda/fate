@@ -1,35 +1,48 @@
-import {ArmorActionResultCode} from './code';
-import {ArmorActionResultOptions} from './options';
-import {ArmorActionResultState} from './state';
+import {AROptions} from './options';
+import {ARState} from './state';
+import {ResultCode} from './result-code';
 
-export class ArmorActionResult {
-	public readonly state: ArmorActionResultState;
-	public code: ArmorActionResultCode;
+export class ActionResult {
+	public readonly state: ARState;
+	public code: ResultCode;
 	public payload: any;
 
-	constructor(options?: ArmorActionResultOptions) {
-		this.state = new ArmorActionResultState();
-		this.code = ArmorActionResultCode.NOT_SET;
+	constructor(options?: AROptions) {
+		this.state = new ARState(options);
+		this.code = ResultCode.NOT_SET;
 		this.payload = null;
 	}
 
-	public message(messages: string | string[]): ArmorActionResult {
-		if (Array.isArray(messages)) {
-			messages.forEach((message: any) => {
-				if (typeof message !== 'string') {
-					return;
-				}
+	public messages(messages: string[]): ActionResult {
+		if (!Array.isArray(messages)) {
+			return this;
+		}
 
-				this.state.messages.push(message);
-			});
-		} else if (typeof messages === 'string') {
-			this.state.messages.push(messages);
+		for (const message of messages) {
+			if (typeof message !== 'string') {
+				continue;
+			}
+
+			this.state.messages.push(message);
 		}
 
 		return this;
 	}
 
-	public error(errors: Error | Error[]): ArmorActionResult {
+	public message(message: string | string[]): ActionResult {
+		if (Array.isArray(message)) {
+			return this.messages(message);
+		}
+
+		if (typeof message !== 'string') {
+			return this;
+		}
+
+		this.state.messages.push(message);
+		return this;
+	}
+
+	public error(errors: Error | Error[]): ActionResult {
 		if (Array.isArray(errors)) {
 			errors.forEach((error: Error) => {
 				this.state.errors.push(error);
@@ -37,24 +50,25 @@ export class ArmorActionResult {
 		} else {
 			this.state.errors.push(errors);
 		}
+
 		return this;
 	}
 
-	public fail(): ArmorActionResult {
-		this.code = ArmorActionResultCode.FAILURE;
+	public fail(): ActionResult {
+		this.code = ResultCode.FAILURE;
 		return this;
 	}
 
-	public succeed(): ArmorActionResult {
-		this.code = ArmorActionResultCode.SUCCESS;
+	public succeed(): ActionResult {
+		this.code = ResultCode.SUCCESS;
 		return this;
 	}
 
-	public complete(): ArmorActionResult {
+	public complete(): ActionResult {
 		if (this.state.hasFailed()) {
-			this.code = ArmorActionResultCode.FAILURE;
+			this.code = ResultCode.FAILURE;
 		} else {
-			this.code = ArmorActionResultCode.SUCCESS;
+			this.code = ResultCode.SUCCESS;
 		}
 
 		return this;

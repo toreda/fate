@@ -1,6 +1,6 @@
-import {ArmorActionResultOptions} from './options';
+import {AROptions} from './options';
 
-export class ArmorActionResultState {
+export class ARState {
 	public readonly errors: Error[];
 	public failOnError: {
 		enabled: boolean;
@@ -8,7 +8,7 @@ export class ArmorActionResultState {
 	};
 	public messages: string[];
 
-	constructor(options?: ArmorActionResultOptions) {
+	constructor(options?: AROptions) {
 		this.errors = [];
 		this.messages = [];
 		this.failOnError = this.parseFailOnError(options);
@@ -24,10 +24,10 @@ export class ArmorActionResultState {
 			return false;
 		}
 
-		return errCount >= this.failOnError.threshold
+		return errCount >= this.failOnError.threshold;
 	}
 
-	public parseFailOnError(options?: ArmorActionResultOptions): any {
+	public parseFailOnError(options?: AROptions): any {
 		const defaultThreshold = 1;
 
 		const defaultValue = {

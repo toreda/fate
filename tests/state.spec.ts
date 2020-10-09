@@ -1,10 +1,10 @@
-import {ArmorActionResultState} from '../src/';
+import {ARState} from '../src/state';
 
-describe('ArmorActionResultState', () => {
-	let instance: ArmorActionResultState;
+describe('ARState', () => {
+	let instance: ARState;
 
 	beforeAll(() => {
-		instance = new ArmorActionResultState();
+		instance = new ARState();
 	});
 
 	describe('Constructor', () => {
@@ -24,13 +24,13 @@ describe('ArmorActionResultState', () => {
 	describe('Implementation', () => {
 		describe('hasFailed', () => {
 			it('should return false when no errors are present', () => {
-				const customInstance = new ArmorActionResultState();
+				const customInstance = new ARState();
 				expect(customInstance.errors.length).toBe(0);
 				expect(customInstance.hasFailed()).toBe(false);
 			});
 
 			it('should return false when failOnError is disabled', () => {
-				const customInstance = new ArmorActionResultState({
+				const customInstance = new ARState({
 					failOnError: {
 						enabled: false
 					}
@@ -41,7 +41,7 @@ describe('ArmorActionResultState', () => {
 			});
 
 			it('should return false when failOnError is enabled but no errors are present', () => {
-				const customInstance = new ArmorActionResultState({
+				const customInstance = new ARState({
 					failOnError: {
 						enabled: true,
 						threshold: 1
@@ -53,7 +53,7 @@ describe('ArmorActionResultState', () => {
 			});
 
 			it('should return false when failOnError is enabled and the error count is lower than threshold', () => {
-				const customInstance = new ArmorActionResultState({
+				const customInstance = new ARState({
 					failOnError: {
 						enabled: true,
 						threshold: 2
@@ -65,7 +65,7 @@ describe('ArmorActionResultState', () => {
 			});
 
 			it('should return true when failOnError is enabled and the error count is exactly at threshold', () => {
-				const customInstance = new ArmorActionResultState({
+				const customInstance = new ARState({
 					failOnError: {
 						enabled: true,
 						threshold: 2
@@ -79,7 +79,7 @@ describe('ArmorActionResultState', () => {
 			});
 
 			it('should return true when failOnError is enabled and the error count exceeds threshold', () => {
-				const customInstance = new ArmorActionResultState({
+				const customInstance = new ARState({
 					failOnError: {
 						enabled: true,
 						threshold: 2
