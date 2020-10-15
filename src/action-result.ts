@@ -1,15 +1,15 @@
-import {AROptions} from './options';
-import {ARState} from './state';
-import {ResultCode} from './result-code';
+import {ActionResultCode} from './action-result/code';
+import {ActionResultOptions} from './action-result/options';
+import {ActionResultState} from './action-result/state';
 
 export class ActionResult {
-	public readonly state: ARState;
-	public code: ResultCode;
+	public readonly state: ActionResultState;
+	public code: ActionResultCode;
 	public payload: any;
 
-	constructor(options?: AROptions) {
-		this.state = new ARState(options);
-		this.code = ResultCode.NOT_SET;
+	constructor(options?: ActionResultOptions) {
+		this.state = new ActionResultState(options);
+		this.code = ActionResultCode.NOT_SET;
 		this.payload = null;
 	}
 
@@ -55,20 +55,20 @@ export class ActionResult {
 	}
 
 	public fail(): ActionResult {
-		this.code = ResultCode.FAILURE;
+		this.code = ActionResultCode.FAILURE;
 		return this;
 	}
 
 	public succeed(): ActionResult {
-		this.code = ResultCode.SUCCESS;
+		this.code = ActionResultCode.SUCCESS;
 		return this;
 	}
 
 	public complete(): ActionResult {
 		if (this.state.hasFailed()) {
-			this.code = ResultCode.FAILURE;
+			this.code = ActionResultCode.FAILURE;
 		} else {
-			this.code = ResultCode.SUCCESS;
+			this.code = ActionResultCode.SUCCESS;
 		}
 
 		return this;

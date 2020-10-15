@@ -1,10 +1,10 @@
-import {ARState} from '../src/state';
+import {ActionResultState} from '../../src/action-result/state';
 
-describe('ARState', () => {
-	let instance: ARState;
+describe('ActionResultState', () => {
+	let instance: ActionResultState;
 
 	beforeAll(() => {
-		instance = new ARState();
+		instance = new ActionResultState();
 	});
 
 	describe('Constructor', () => {
@@ -24,13 +24,13 @@ describe('ARState', () => {
 	describe('Implementation', () => {
 		describe('hasFailed', () => {
 			it('should return false when no errors are present', () => {
-				const customInstance = new ARState();
+				const customInstance = new ActionResultState();
 				expect(customInstance.errors.length).toBe(0);
 				expect(customInstance.hasFailed()).toBe(false);
 			});
 
 			it('should return false when failOnError is disabled', () => {
-				const customInstance = new ARState({
+				const customInstance = new ActionResultState({
 					failOnError: {
 						enabled: false
 					}
@@ -41,7 +41,7 @@ describe('ARState', () => {
 			});
 
 			it('should return false when failOnError is enabled but no errors are present', () => {
-				const customInstance = new ARState({
+				const customInstance = new ActionResultState({
 					failOnError: {
 						enabled: true,
 						threshold: 1
@@ -52,8 +52,8 @@ describe('ARState', () => {
 				expect(customInstance.hasFailed()).toBe(false);
 			});
 
-			it('should return false when failOnError is enabled and the error count is lower than threshold', () => {
-				const customInstance = new ARState({
+			it('should return false when failOnError is enabled and error count < threshold', () => {
+				const customInstance = new ActionResultState({
 					failOnError: {
 						enabled: true,
 						threshold: 2
@@ -64,8 +64,8 @@ describe('ARState', () => {
 				expect(customInstance.hasFailed()).toBe(false);
 			});
 
-			it('should return true when failOnError is enabled and the error count is exactly at threshold', () => {
-				const customInstance = new ARState({
+			it('should return true when failOnError is enabled and error count === threshold', () => {
+				const customInstance = new ActionResultState({
 					failOnError: {
 						enabled: true,
 						threshold: 2
@@ -78,8 +78,8 @@ describe('ARState', () => {
 				expect(customInstance.hasFailed()).toBe(true);
 			});
 
-			it('should return true when failOnError is enabled and the error count exceeds threshold', () => {
-				const customInstance = new ARState({
+			it('should return true when failOnError is enabled and error count > threshold', () => {
+				const customInstance = new ActionResultState({
 					failOnError: {
 						enabled: true,
 						threshold: 2

@@ -1,6 +1,7 @@
-import {AROptions} from './options';
+import {ActionResultOptions} from './options';
+import {ActionResultStateFailure} from './state/failure';
 
-export class ARState {
+export class ActionResultState {
 	public readonly errors: Error[];
 	public failOnError: {
 		enabled: boolean;
@@ -8,7 +9,7 @@ export class ARState {
 	};
 	public messages: string[];
 
-	constructor(options?: AROptions) {
+	constructor(options?: ActionResultOptions) {
 		this.errors = [];
 		this.messages = [];
 		this.failOnError = this.parseFailOnError(options);
@@ -27,10 +28,10 @@ export class ARState {
 		return errCount >= this.failOnError.threshold;
 	}
 
-	public parseFailOnError(options?: AROptions): any {
+	public parseFailOnError(options?: ActionResultOptions): ActionResultStateFailure {
 		const defaultThreshold = 1;
 
-		const defaultValue = {
+		const defaultValue: ActionResultStateFailure = {
 			enabled: false,
 			threshold: defaultThreshold
 		};
@@ -47,7 +48,7 @@ export class ARState {
 			return defaultValue;
 		}
 
-		const failOnError = {
+		const failOnError: ActionResultStateFailure = {
 			enabled: options.failOnError.enabled,
 			threshold: defaultThreshold
 		};

@@ -1,4 +1,4 @@
 export * from './action-result';
-export * from './result-code';
-export * from './state';
-export * from './options';
+export * from './action-result/code';
+export * from './action-result/state';
+export * from './action-result/options';

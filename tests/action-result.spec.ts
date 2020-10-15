@@ -1,5 +1,5 @@
 import {ActionResult} from '../src/action-result';
-import {ResultCode} from '../src/result-code';
+import {ActionResultCode} from '../src/action-result/code';
 
 describe('ActionResult', () => {
 	let instance: ActionResult;
@@ -14,7 +14,7 @@ describe('ActionResult', () => {
 		});
 
 		it('should intialize code to NOT_SET', () => {
-			expect(instance.code).toBe(ResultCode.NOT_SET);
+			expect(instance.code).toBe(ActionResultCode.NOT_SET);
 		});
 
 		it('should initialize payload to null', () => {
@@ -24,7 +24,7 @@ describe('ActionResult', () => {
 
 	describe('Implementation', () => {
 		beforeEach(() => {
-			instance.code = ResultCode.NOT_SET;
+			instance.code = ActionResultCode.NOT_SET;
 		});
 
 		describe('error', () => {
@@ -64,7 +64,7 @@ describe('ActionResult', () => {
 		});
 
 		describe('complete', () => {
-			let hasFailedMock: any;
+			let hasFailedMock: jest.SpyInstance;
 			beforeAll(() => {
 				hasFailedMock = jest.spyOn(instance.state, 'hasFailed');
 			});
@@ -82,9 +82,9 @@ describe('ActionResult', () => {
 					return false;
 				});
 
-				instance.code = ResultCode.NOT_SET;
+				instance.code = ActionResultCode.NOT_SET;
 				instance.complete();
-				expect(instance.code).toBe(ResultCode.SUCCESS);
+				expect(instance.code).toBe(ActionResultCode.SUCCESS);
 			});
 
 			it('should result code to failure when state reports the action failed', () => {
@@ -92,9 +92,9 @@ describe('ActionResult', () => {
 					return true;
 				});
 
-				instance.code = ResultCode.SUCCESS;
+				instance.code = ActionResultCode.SUCCESS;
 				instance.complete();
-				expect(instance.code).toBe(ResultCode.FAILURE);
+				expect(instance.code).toBe(ActionResultCode.FAILURE);
 			});
 		});
 
@@ -127,9 +127,9 @@ describe('ActionResult', () => {
 
 			it('should not add message when message argument is not a string', () => {
 				const customInstance = new ActionResult();
-				const message = 4411 as any;
+				const message = 4411 as unknown;
 				expect(customInstance.state.messages).toHaveLength(0);
-				customInstance.message(message);
+				customInstance.message(message as string);
 				expect(customInstance.state.messages).toHaveLength(0);
 			});
 
@@ -155,18 +155,18 @@ describe('ActionResult', () => {
 		describe('fail', () => {
 			it('should set code to SUCCESS', () => {
 				const customInstance = new ActionResult();
-				expect(customInstance.code).toBe(ResultCode.NOT_SET);
+				expect(customInstance.code).toBe(ActionResultCode.NOT_SET);
 				customInstance.fail();
-				expect(customInstance.code).toBe(ResultCode.FAILURE);
+				expect(customInstance.code).toBe(ActionResultCode.FAILURE);
 			});
 		});
 
 		describe('success', () => {
 			it('should set code to SUCCESS', () => {
 				const customInstance = new ActionResult();
-				expect(customInstance.code).toBe(ResultCode.NOT_SET);
+				expect(customInstance.code).toBe(ActionResultCode.NOT_SET);
 				customInstance.succeed();
-				expect(customInstance.code).toBe(ResultCode.SUCCESS);
+				expect(customInstance.code).toBe(ActionResultCode.SUCCESS);
 			});
 		});
 	});
