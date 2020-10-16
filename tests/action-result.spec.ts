@@ -1,11 +1,11 @@
 import {ActionResult} from '../src/action-result';
 import {ActionResultCode} from '../src/action-result/code';
 
-describe('ActionResult', () => {
-	let instance: ActionResult;
+describe('ActionResult<T>', () => {
+	let instance: ActionResult<string>;
 
 	beforeAll(() => {
-		instance = new ActionResult();
+		instance = new ActionResult<string>();
 	});
 
 	describe('Constructor', () => {
@@ -29,7 +29,7 @@ describe('ActionResult', () => {
 
 		describe('error', () => {
 			it('should add error to queue when errors argument is a single error', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				expect(customInstance.state.errors).toEqual([]);
 				const error = new Error('message here');
 				customInstance.error(error);
@@ -37,7 +37,7 @@ describe('ActionResult', () => {
 			});
 
 			it('should add single errors to queue when called multiple times with a single error', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				expect(customInstance.state.errors).toEqual([]);
 				customInstance.error(new Error('message here 1'));
 				customInstance.error(new Error('message here 2'));
@@ -47,7 +47,7 @@ describe('ActionResult', () => {
 			});
 
 			it('should add all errors in error array argument when there are no errors', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				expect(customInstance.state.errors).toEqual([]);
 				customInstance.error([new Error('message'), new Error('more messages')]);
 
@@ -55,7 +55,7 @@ describe('ActionResult', () => {
 			});
 
 			it('should add all errors in error array argument when called multiple times', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				expect(customInstance.state.errors).toEqual([]);
 				customInstance.error([new Error('message 121'), new Error('more messages 441')]);
 				customInstance.error([new Error('message 313'), new Error('more messages 551')]);
@@ -100,7 +100,7 @@ describe('ActionResult', () => {
 
 		describe('message', () => {
 			it('should add string to messages', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				const message = '10914091409 100914 14481';
 				expect(customInstance.state.messages).toHaveLength(0);
 				customInstance.message(message);
@@ -108,7 +108,7 @@ describe('ActionResult', () => {
 			});
 
 			it('should add all strings in array to messages when messages is empty', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				const messages = ['one', 'two', 'three'];
 				expect(customInstance.state.messages).toHaveLength(0);
 				customInstance.message(messages);
@@ -116,7 +116,7 @@ describe('ActionResult', () => {
 			});
 
 			it('should add all strings in array to messages when messages have already been queued', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				const messages = ['one', 'two', 'three', 'four'];
 				customInstance.message('one');
 				customInstance.message('two');
@@ -126,7 +126,7 @@ describe('ActionResult', () => {
 			});
 
 			it('should not add message when message argument is not a string', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				const message = 4411 as unknown;
 				expect(customInstance.state.messages).toHaveLength(0);
 				customInstance.message(message as string);
@@ -134,7 +134,7 @@ describe('ActionResult', () => {
 			});
 
 			it('should not add messages when messages array is non-strings', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				const messages = [111 as any, 333 as any, 4441 as any];
 				customInstance.message('one');
 				expect(customInstance.state.messages).toHaveLength(1);
@@ -143,7 +143,7 @@ describe('ActionResult', () => {
 			});
 
 			it('should add valid string messages when messages array contains valid and invalid data', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				const messages = [111 as any, 333 as any, 'two', 'five'];
 				customInstance.message('one');
 				expect(customInstance.state.messages).toHaveLength(1);
@@ -154,7 +154,7 @@ describe('ActionResult', () => {
 
 		describe('fail', () => {
 			it('should set code to SUCCESS', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				expect(customInstance.code).toBe(ActionResultCode.NOT_SET);
 				customInstance.fail();
 				expect(customInstance.code).toBe(ActionResultCode.FAILURE);
@@ -163,7 +163,7 @@ describe('ActionResult', () => {
 
 		describe('success', () => {
 			it('should set code to SUCCESS', () => {
-				const customInstance = new ActionResult();
+				const customInstance = new ActionResult<string>();
 				expect(customInstance.code).toBe(ActionResultCode.NOT_SET);
 				customInstance.succeed();
 				expect(customInstance.code).toBe(ActionResultCode.SUCCESS);
