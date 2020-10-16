@@ -1,5 +1,7 @@
 # `@toreda/action-result`
 
+![Toreda](https://content.toreda.com/logo/toreda-logo.png)
+
 ![CI](https://github.com/toreda/action-result/workflows/CI/badge.svg?branch=master) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=toreda_action-result&metric=coverage)](https://sonarcloud.io/dashboard?id=toreda_action-result) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=toreda_action-result&metric=alert_status)](https://sonarcloud.io/dashboard?id=toreda_action-result)
 
 

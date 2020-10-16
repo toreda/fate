@@ -1,11 +1,11 @@
 import {dest, parallel, series, src} from 'gulp';
 
-import {ArmorBuild} from '@armorjs/build';
+import {BuildTools} from '@toreda/build-tools';
 import {EventEmitter} from 'events';
 
 const eslint = require('gulp-eslint');
 
-const build: ArmorBuild = new ArmorBuild(new EventEmitter());
+const build: BuildTools = new BuildTools(new EventEmitter());
 
 function runLint(): any {
 	return (

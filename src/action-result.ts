@@ -2,10 +2,10 @@ import {ActionResultCode} from './action-result/code';
 import {ActionResultOptions} from './action-result/options';
 import {ActionResultState} from './action-result/state';
 
-export class ActionResult {
+export class ActionResult<T> {
 	public readonly state: ActionResultState;
 	public code: ActionResultCode;
-	public payload: any;
+	public payload: T | null;
 
 	constructor(options?: ActionResultOptions) {
 		this.state = new ActionResultState(options);
@@ -13,7 +13,7 @@ export class ActionResult {
 		this.payload = null;
 	}
 
-	public messages(messages: string[]): ActionResult {
+	public messages(messages: string[]): ActionResult<T> {
 		if (!Array.isArray(messages)) {
 			return this;
 		}
@@ -29,7 +29,7 @@ export class ActionResult {
 		return this;
 	}
 
-	public message(message: string | string[]): ActionResult {
+	public message(message: string | string[]): ActionResult<T> {
 		if (Array.isArray(message)) {
 			return this.messages(message);
 		}
@@ -42,7 +42,7 @@ export class ActionResult {
 		return this;
 	}
 
-	public error(errors: Error | Error[]): ActionResult {
+	public error(errors: Error | Error[]): ActionResult<T> {
 		if (Array.isArray(errors)) {
 			errors.forEach((error: Error) => {
 				this.state.errors.push(error);
@@ -54,17 +54,17 @@ export class ActionResult {
 		return this;
 	}
 
-	public fail(): ActionResult {
+	public fail(): ActionResult<T> {
 		this.code = ActionResultCode.FAILURE;
 		return this;
 	}
 
-	public succeed(): ActionResult {
+	public succeed(): ActionResult<T> {
 		this.code = ActionResultCode.SUCCESS;
 		return this;
 	}
 
-	public complete(): ActionResult {
+	public complete(): ActionResult<T> {
 		if (this.state.hasFailed()) {
 			this.code = ActionResultCode.FAILURE;
 		} else {
