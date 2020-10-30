@@ -41,13 +41,15 @@ export class ActionResult<T> {
 		return this;
 	}
 
-	public error(errors: Error | Error[]): boolean {
-		if (!Array.isArray(errors)) {
-			this.state.errorLog.push(errors);
+	public error(error: any): boolean {
+		if (Array.isArray(error)) {
+			error.forEach(this.error, this);
+		} else if (error instanceof Error) {
+			this.state.errorLog.push(error);
+		} else if (error != null && error.toString) {
+			this.state.errorLog.push(Error(error.toString()));
 		} else {
-			errors.forEach((error) => {
-				this.state.errorLog.push(error);
-			});
+			this.state.errorLog.push(Error(JSON.stringify(error)));
 		}
 
 		if (!this.isFailure() && this.state.hasFailed()) {
@@ -57,13 +59,15 @@ export class ActionResult<T> {
 		return !this.isFailure();
 	}
 
-	public message(messages: string | string[]): ActionResult<T> {
-		if (!Array.isArray(messages)) {
-			this.state.messageLog.push(messages);
+	public message(message: any): ActionResult<T> {
+		if (Array.isArray(message)) {
+			message.forEach(this.message, this);
+		} else if (typeof message === 'string') {
+			this.state.messageLog.push(message);
+		} else if (message != null && message.toString) {
+			this.state.messageLog.push(message.toString());
 		} else {
-			messages.forEach((message) => {
-				this.state.messageLog.push(message);
-			});
+			this.state.messageLog.push(JSON.stringify(message));
 		}
 
 		return this;

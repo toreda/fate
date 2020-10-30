@@ -166,7 +166,7 @@ describe('ActionResult<T>', () => {
 
 				while (counter < 5) {
 					counter++;
-					instance[func](`new func ${counter}`);
+					instance[func](`new ${func} ${counter}`);
 					expect(instance.state[log].length).toBe(counter);
 				}
 			});
@@ -174,10 +174,7 @@ describe('ActionResult<T>', () => {
 			it(`should add multiple ${func}s to state ${log}`, () => {
 				expect(instance.state[log].length).toBe(0);
 
-				const customlog: string[] = [];
-				for (let i = 0; i < 5; i++) {
-					customlog.push(`new func ${i + 11}`);
-				}
+				const customlog = ['string test', 918230, {key: 'value'}, null, Error('error message')];
 
 				instance[func](customlog);
 				expect(instance.state[log].length).toBe(customlog.length);
