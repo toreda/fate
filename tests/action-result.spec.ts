@@ -1,172 +1,232 @@
 import {ActionResult} from '../src/action-result';
 import {ActionResultCode} from '../src/action-result/code';
+import {ActionResultOptions} from '../src/action-result/options';
+import {ActionResultState} from '../src/action-result/state';
 
 describe('ActionResult', () => {
-	let instance: ActionResult;
+	let instance: ActionResult<string>;
 
 	beforeAll(() => {
-		instance = new ActionResult();
+		instance = new ActionResult<string>({errorThreshold: Infinity});
+	});
+
+	beforeEach(() => {
+		instance.payload = (null as unknown) as string;
+		instance.state.errorLog.length = 0;
+		instance.code = ActionResultCode.NOT_SET;
 	});
 
 	describe('Constructor', () => {
-		it('should initialize state', () => {
-			expect(instance.state).not.toBeUndefined();
+		describe('constructor', () => {
+			it('should not throw with no args', () => {
+				expect(() => {
+					new ActionResult<string>();
+				}).not.toThrow();
+			});
+
+			it('should call ActionResultState with options arg', () => {
+				const spy = jest.spyOn(ActionResultState.prototype, 'parse');
+				const options = {errorThreshold: 10};
+				new ActionResult<string>(options);
+				expect(spy).toBeCalledWith(options);
+			});
+
+			it('should call parseOptions with options arg', () => {
+				const spy = jest.spyOn(ActionResult.prototype, 'parseOptions');
+				const options = {payload: 'idfj'};
+				new ActionResult<string>(options);
+				expect(spy).toBeCalledWith(options);
+			});
 		});
 
-		it('should intialize code to NOT_SET', () => {
-			expect(instance.code).toBe(ActionResultCode.NOT_SET);
+		describe('parseOptions', () => {
+			it('should call parseOptionsPayload with options arg', () => {
+				const spy = jest.spyOn(instance, 'parseOptionsPayload');
+				const options = {payload: 'idfj'};
+				instance.parseOptions(options);
+				expect(spy).toBeCalledWith(options);
+			});
+
+			it('should return object with payload key', () => {
+				const expectedV = 'xciower';
+				expect(instance.parseOptions({payload: expectedV}).payload).toBe(expectedV);
+			});
 		});
 
-		it('should initialize payload to null', () => {
-			expect(instance.payload).toBeNull();
+		describe('parseOptionsPayload', () => {
+			it('should return undefined if options.payload is undefined', () => {
+				const expectedV = undefined;
+				expect(instance.parseOptionsPayload()).toBe(expectedV);
+			});
+
+			it('should return options.payload if it is defined', () => {
+				const expectedV = 'kjlxzcv';
+				expect(instance.parseOptionsPayload({payload: expectedV})).toBe(expectedV);
+			});
+		});
+	});
+
+	describe('Helpers', () => {
+		describe('forceFailure', () => {
+			it('should change the code to FAILURE', () => {
+				instance.forceFailure();
+				expect(instance.code).toBe(ActionResultCode.FAILURE);
+			});
+
+			it('should return ActionResult', () => {
+				expect(instance.forceFailure()).toBe(instance);
+			});
+		});
+
+		describe('forceSuccess', () => {
+			it('should change the code to SUCCESS', () => {
+				instance.forceSuccess();
+				expect(instance.code).toBe(ActionResultCode.SUCCESS);
+			});
+
+			it('should return ActionResult', () => {
+				expect(instance.forceSuccess()).toBe(instance);
+			});
 		});
 	});
 
 	describe('Implementation', () => {
-		beforeEach(() => {
-			instance.code = ActionResultCode.NOT_SET;
+		let spyForceFailure: jest.SpyInstance;
+		let spyForceSuccess: jest.SpyInstance;
+
+		beforeAll(() => {
+			spyForceFailure = jest.spyOn(instance, 'forceFailure');
+			spyForceSuccess = jest.spyOn(instance, 'forceSuccess');
 		});
 
-		describe('error', () => {
-			it('should add error to queue when errors argument is a single error', () => {
-				const customInstance = new ActionResult();
-				expect(customInstance.state.errors).toEqual([]);
-				const error = new Error('message here');
-				customInstance.error(error);
-				expect(customInstance.state.errors).toHaveLength(1);
-			});
+		beforeEach(() => {
+			spyForceFailure.mockClear();
+			spyForceSuccess.mockClear();
+		});
 
-			it('should add single errors to queue when called multiple times with a single error', () => {
-				const customInstance = new ActionResult();
-				expect(customInstance.state.errors).toEqual([]);
-				customInstance.error(new Error('message here 1'));
-				customInstance.error(new Error('message here 2'));
-				customInstance.error(new Error('message here 3'));
-
-				expect(customInstance.state.errors).toHaveLength(3);
-			});
-
-			it('should add all errors in error array argument when there are no errors', () => {
-				const customInstance = new ActionResult();
-				expect(customInstance.state.errors).toEqual([]);
-				customInstance.error([new Error('message'), new Error('more messages')]);
-
-				expect(customInstance.state.errors).toHaveLength(2);
-			});
-
-			it('should add all errors in error array argument when called multiple times', () => {
-				const customInstance = new ActionResult();
-				expect(customInstance.state.errors).toEqual([]);
-				customInstance.error([new Error('message 121'), new Error('more messages 441')]);
-				customInstance.error([new Error('message 313'), new Error('more messages 551')]);
-				expect(customInstance.state.errors).toHaveLength(4);
-			});
+		afterAll(() => {
+			spyForceFailure.mockRestore();
+			spyForceSuccess.mockRestore();
 		});
 
 		describe('complete', () => {
-			let hasFailedMock: jest.SpyInstance;
-			beforeAll(() => {
-				hasFailedMock = jest.spyOn(instance.state, 'hasFailed');
-			});
+			it('should call forceFailure if payload is null', () => {
+				expect(instance.payload).toBeNull();
 
-			beforeEach(() => {
-				hasFailedMock.mockReset();
-			});
-
-			afterAll(() => {
-				hasFailedMock.mockRestore();
-			});
-
-			it('should result code to success when state reports the action succeeded', () => {
-				hasFailedMock.mockImplementation(() => {
-					return false;
-				});
-
-				instance.code = ActionResultCode.NOT_SET;
 				instance.complete();
-				expect(instance.code).toBe(ActionResultCode.SUCCESS);
+
+				expect(spyForceFailure).toBeCalled();
+				expect(spyForceSuccess).not.toBeCalled();
 			});
 
-			it('should result code to failure when state reports the action failed', () => {
-				hasFailedMock.mockImplementation(() => {
-					return true;
-				});
+			it('should call forceFailure if payload is not null but state hasFailed is true', () => {
+				jest.spyOn(instance.state, 'hasFailed').mockReturnValueOnce(true);
+				instance.payload = '';
 
-				instance.code = ActionResultCode.SUCCESS;
 				instance.complete();
-				expect(instance.code).toBe(ActionResultCode.FAILURE);
+
+				expect(spyForceFailure).toBeCalled();
+				expect(spyForceSuccess).not.toBeCalled();
+			});
+
+			it('should call forceSuccess if payload is not null and state hasFailed is false', () => {
+				jest.spyOn(instance.state, 'hasFailed').mockReturnValueOnce(false);
+				instance.payload = '';
+
+				instance.complete();
+
+				expect(spyForceFailure).not.toBeCalled();
+				expect(spyForceSuccess).toBeCalled();
 			});
 		});
 
-		describe('message', () => {
-			it('should add string to messages', () => {
-				const customInstance = new ActionResult();
-				const message = '10914091409 100914 14481';
-				expect(customInstance.state.messages).toHaveLength(0);
-				customInstance.message(message);
-				expect(customInstance.state.messages).toHaveLength(1);
+		describe('error', () => {
+			it('should add single error to state errorLog', () => {
+				expect(instance.state.errorLog.length).toBe(0);
+				let counter = 0;
+
+				while (counter < 5) {
+					counter++;
+					instance.error(Error(`new error ${counter}`));
+					expect(instance.state.errorLog.length).toBe(counter);
+				}
 			});
 
-			it('should add all strings in array to messages when messages is empty', () => {
-				const customInstance = new ActionResult();
-				const messages = ['one', 'two', 'three'];
-				expect(customInstance.state.messages).toHaveLength(0);
-				customInstance.message(messages);
-				expect(customInstance.state.messages).toHaveLength(messages.length);
+			it('should add multiple errors to state errorLog', () => {
+				expect(instance.state.errorLog.length).toBe(0);
+
+				const errors: Error[] = [];
+				for (let i = 0; i < 5; i++) {
+					errors.push(Error(`new error ${i + 11}`));
+				}
+
+				instance.error(errors);
+				expect(instance.state.errorLog.length).toBe(errors.length);
 			});
 
-			it('should add all strings in array to messages when messages have already been queued', () => {
-				const customInstance = new ActionResult();
-				const messages = ['one', 'two', 'three', 'four'];
-				customInstance.message('one');
-				customInstance.message('two');
-				expect(customInstance.state.messages).toHaveLength(2);
-				customInstance.message(messages);
-				expect(customInstance.state.messages).toHaveLength(messages.length + 2);
+			it('should call forceFailure if not currently failing and state hasFailed returns true', () => {
+				jest.spyOn(instance.state, 'hasFailed').mockReturnValueOnce(true);
+
+				instance.error(Error('test error 098'));
+				expect(spyForceFailure).toBeCalledTimes(1);
+
+				instance.error(Error('test error 972'));
+				expect(spyForceFailure).toBeCalledTimes(1);
 			});
 
-			it('should not add message when message argument is not a string', () => {
-				const customInstance = new ActionResult();
-				const message = 4411 as unknown;
-				expect(customInstance.state.messages).toHaveLength(0);
-				customInstance.message(message as string);
-				expect(customInstance.state.messages).toHaveLength(0);
+			it('should not call forceFailure if state hasFailed returns false', () => {
+				jest.spyOn(instance.state, 'hasFailed').mockReturnValueOnce(false);
+
+				instance.error(Error('test error 385'));
+				expect(spyForceFailure).not.toBeCalled();
 			});
 
-			it('should not add messages when messages array is non-strings', () => {
-				const customInstance = new ActionResult();
-				const messages = [111 as any, 333 as any, 4441 as any];
-				customInstance.message('one');
-				expect(customInstance.state.messages).toHaveLength(1);
-				customInstance.message(messages);
-				expect(customInstance.state.messages).toHaveLength(1);
+			it('should return false if code is FAILURE', () => {
+				instance.forceFailure();
+				expect(instance.error(Error('test error 555'))).toBe(false);
 			});
 
-			it('should add valid string messages when messages array contains valid and invalid data', () => {
-				const customInstance = new ActionResult();
-				const messages = [111 as any, 333 as any, 'two', 'five'];
-				customInstance.message('one');
-				expect(customInstance.state.messages).toHaveLength(1);
-				customInstance.message(messages);
-				expect(customInstance.state.messages).toHaveLength(3);
-			});
-		});
+			it('should return true if code is not FAILURE', () => {
+				expect(instance.error(Error('test error 935'))).toBe(true);
 
-		describe('fail', () => {
-			it('should set code to SUCCESS', () => {
-				const customInstance = new ActionResult();
-				expect(customInstance.code).toBe(ActionResultCode.NOT_SET);
-				customInstance.fail();
-				expect(customInstance.code).toBe(ActionResultCode.FAILURE);
+				instance.forceSuccess();
+				expect(instance.error(Error('test error 721'))).toBe(true);
 			});
 		});
 
-		describe('success', () => {
-			it('should set code to SUCCESS', () => {
-				const customInstance = new ActionResult();
-				expect(customInstance.code).toBe(ActionResultCode.NOT_SET);
-				customInstance.succeed();
-				expect(customInstance.code).toBe(ActionResultCode.SUCCESS);
+		describe('getData', () => {
+			it('should return the errors if code is FAILURE', () => {
+				const spy = jest.spyOn(instance, 'isFailure').mockReturnValue(true);
+				expect(instance.getData()).toBe(instance.state.errorLog);
+				instance.error(Error('getData 47859'));
+				expect(instance.getData()).toBe(instance.state.errorLog);
+				instance.error(Error('getData 75168'));
+				expect(instance.getData()).toBe(instance.state.errorLog);
+				instance.error(Error('getData 23890'));
+				expect(instance.getData()).toBe(instance.state.errorLog);
+				spy.mockRestore();
+			});
+
+			it('should return the payload if code is not FAILURE', () => {
+				const spy = jest.spyOn(instance, 'isFailure').mockReturnValue(false);
+				expect(instance.getData()).toBe(instance.payload);
+				instance.payload = 'success payload';
+				expect(instance.getData()).toBe(instance.payload);
+				spy.mockRestore();
+			});
+		});
+
+		describe.each([
+			['isFailure', 'FAILURE'],
+			['isSuccess', 'SUCCESS']
+		])('%s', (description, descriptionCode) => {
+			it.each([
+				[descriptionCode === 'NOT_SET', 'NOT_SET'],
+				[descriptionCode === 'SUCCESS', 'SUCCESS'],
+				[descriptionCode === 'FAILURE', 'FAILURE']
+			])('should return %p when code is %s', (expectedV, testCode) => {
+				instance.code = ActionResultCode[testCode];
+				expect(instance[description]()).toBe(expectedV);
 			});
 		});
 	});
