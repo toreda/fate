@@ -3,7 +3,7 @@ import {ActionResultCode} from '../src/action-result/code';
 import {ActionResultOptions} from '../src/action-result/options';
 import {ActionResultState} from '../src/action-result/state';
 
-describe('ActionResult', () => {
+describe('ActionResult<T>', () => {
 	let instance: ActionResult<string>;
 
 	beforeAll(() => {
@@ -18,6 +18,18 @@ describe('ActionResult', () => {
 
 	describe('Constructor', () => {
 		describe('constructor', () => {
+			it('should initialize state', () => {
+				expect(instance.state).not.toBeUndefined();
+				});
+
+			it('should intialize code to NOT_SET', () => {
+				expect(instance.code).toBe(ActionResultCode.NOT_SET);
+				});
+
+			it('should initialize payload to null', () => {
+				expect(instance.payload).toBeUndefined();
+			});
+
 			it('should not throw with no args', () => {
 				expect(() => {
 					new ActionResult<string>();
