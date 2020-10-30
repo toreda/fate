@@ -1,6 +1,5 @@
 import {ActionResult} from '../src/action-result';
 import {ActionResultCode} from '../src/action-result/code';
-import {ActionResultOptions} from '../src/action-result/options';
 import {ActionResultState} from '../src/action-result/state';
 
 describe('ActionResult<T>', () => {
@@ -11,7 +10,7 @@ describe('ActionResult<T>', () => {
 	});
 
 	beforeEach(() => {
-		instance.payload = (null as unknown) as string;
+		instance.payload = (undefined as unknown) as string;
 		instance.state.errorLog.length = 0;
 		instance.code = ActionResultCode.NOT_SET;
 	});
@@ -20,13 +19,13 @@ describe('ActionResult<T>', () => {
 		describe('constructor', () => {
 			it('should initialize state', () => {
 				expect(instance.state).not.toBeUndefined();
-				});
+			});
 
 			it('should intialize code to NOT_SET', () => {
 				expect(instance.code).toBe(ActionResultCode.NOT_SET);
-				});
+			});
 
-			it('should initialize payload to null', () => {
+			it('should initialize payload to undefined', () => {
 				expect(instance.payload).toBeUndefined();
 			});
 
@@ -123,7 +122,7 @@ describe('ActionResult<T>', () => {
 
 		describe('complete', () => {
 			it('should call forceFailure if payload is null', () => {
-				expect(instance.payload).toBeNull();
+				expect(instance.payload).toBeUndefined();
 
 				instance.complete();
 
