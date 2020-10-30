@@ -12,6 +12,7 @@ describe('ActionResult<T>', () => {
 	beforeEach(() => {
 		instance.payload = (undefined as unknown) as string;
 		instance.state.errorLog.length = 0;
+		instance.state.messageLog.length = 0;
 		instance.code = ActionResultCode.NOT_SET;
 	});
 
@@ -149,32 +150,41 @@ describe('ActionResult<T>', () => {
 				expect(spyForceFailure).not.toBeCalled();
 				expect(spyForceSuccess).toBeCalled();
 			});
+
+			it('should return ActionResult', () => {
+				expect(instance.complete()).toBe(instance);
+			});
 		});
 
-		describe('error', () => {
-			it('should add single error to state errorLog', () => {
-				expect(instance.state.errorLog.length).toBe(0);
+		describe.each([
+			['error', 'errorLog'],
+			['message', 'messageLog']
+		])('%s', (func, log) => {
+			it(`should add single ${func} to state ${log}`, () => {
+				expect(instance.state[log].length).toBe(0);
 				let counter = 0;
 
 				while (counter < 5) {
 					counter++;
-					instance.error(Error(`new error ${counter}`));
-					expect(instance.state.errorLog.length).toBe(counter);
+					instance[func](`new func ${counter}`);
+					expect(instance.state[log].length).toBe(counter);
 				}
 			});
 
-			it('should add multiple errors to state errorLog', () => {
-				expect(instance.state.errorLog.length).toBe(0);
+			it(`should add multiple ${func}s to state ${log}`, () => {
+				expect(instance.state[log].length).toBe(0);
 
-				const errors: Error[] = [];
+				const customlog: string[] = [];
 				for (let i = 0; i < 5; i++) {
-					errors.push(Error(`new error ${i + 11}`));
+					customlog.push(`new func ${i + 11}`);
 				}
 
-				instance.error(errors);
-				expect(instance.state.errorLog.length).toBe(errors.length);
+				instance[func](customlog);
+				expect(instance.state[log].length).toBe(customlog.length);
 			});
+		});
 
+		describe('error', () => {
 			it('should call forceFailure if not currently failing and state hasFailed returns true', () => {
 				jest.spyOn(instance.state, 'hasFailed').mockReturnValueOnce(true);
 
@@ -202,6 +212,12 @@ describe('ActionResult<T>', () => {
 
 				instance.forceSuccess();
 				expect(instance.error(Error('test error 721'))).toBe(true);
+			});
+		});
+
+		describe('message', () => {
+			it('should return ActionResult', () => {
+				expect(instance.message('test message 555')).toBe(instance);
 			});
 		});
 

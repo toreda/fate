@@ -41,6 +41,34 @@ export class ActionResult<T> {
 		return this;
 	}
 
+	public error(errors: Error | Error[]): boolean {
+		if (!Array.isArray(errors)) {
+			this.state.errorLog.push(errors);
+		} else {
+			errors.forEach((error) => {
+				this.state.errorLog.push(error);
+			});
+		}
+
+		if (!this.isFailure() && this.state.hasFailed()) {
+			this.forceFailure();
+		}
+
+		return !this.isFailure();
+	}
+
+	public message(messages: string | string[]): ActionResult<T> {
+		if (!Array.isArray(messages)) {
+			this.state.messageLog.push(messages);
+		} else {
+			messages.forEach((message) => {
+				this.state.messageLog.push(message);
+			});
+		}
+
+		return this;
+	}
+
 	public complete(): ActionResult<T> {
 		if (this.payload == null) {
 			return this.forceFailure();
@@ -51,22 +79,6 @@ export class ActionResult<T> {
 		}
 
 		return this.forceSuccess();
-	}
-
-	public error(errors: Error | Error[]): boolean {
-		if (Array.isArray(errors)) {
-			errors.forEach((error) => {
-				this.state.errorLog.push(error);
-			});
-		} else {
-			this.state.errorLog.push(errors);
-		}
-
-		if (!this.isFailure() && this.state.hasFailed()) {
-			this.forceFailure();
-		}
-
-		return !this.isFailure();
 	}
 
 	public getData(): T | Error[] {

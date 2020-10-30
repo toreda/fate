@@ -14,6 +14,18 @@ describe('ActionResultState', () => {
 			new ActionResultState(expectedV);
 			expect(spy).toBeCalledWith(expectedV);
 		});
+
+		it('should intialize errorLog to []', () => {
+			expect(instance.errorLog).toEqual([]);
+		});
+
+		it('should intialize messageLog to []', () => {
+			expect(instance.messageLog).toEqual([]);
+		});
+
+		it('should intialize errorThreshold to 0', () => {
+			expect(instance.errorThreshold()).toBe(0);
+		});
 	});
 
 	describe('hasFailed', () => {
