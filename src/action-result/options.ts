@@ -1,6 +1,4 @@
-export interface ActionResultOptions {
-	failOnError?: {
-		enabled?: boolean;
-		threshold?: number | string;
-	};
+export interface ActionResultOptions<T> {
+	errorThreshold?: number;
+	payload?: T;
 }
