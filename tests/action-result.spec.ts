@@ -75,6 +75,11 @@ describe('ActionResult<T>', () => {
 				const expectedV = 'kjlxzcv';
 				expect(instance.parseOptionsPayload({payload: expectedV})).toBe(expectedV);
 			});
+
+			it('should return options.payload if it is defined and nullable', () => {
+				const expectedV = '';
+				expect(instance.parseOptionsPayload({payload: expectedV})).toBe(expectedV);
+			});
 		});
 	});
 
@@ -122,12 +127,12 @@ describe('ActionResult<T>', () => {
 		});
 
 		describe('complete', () => {
-			it('should call forceFailure if payload is null', () => {
+			it('should call neither forceFailure or forceSuccess if payload is null', () => {
 				expect(instance.payload).toBeUndefined();
 
 				instance.complete();
 
-				expect(spyForceFailure).toBeCalled();
+				expect(spyForceFailure).not.toBeCalled();
 				expect(spyForceSuccess).not.toBeCalled();
 			});
 
@@ -184,6 +189,7 @@ describe('ActionResult<T>', () => {
 		describe('error', () => {
 			it('should call forceFailure if not currently failing and state hasFailed returns true', () => {
 				jest.spyOn(instance.state, 'hasFailed').mockReturnValueOnce(true);
+				jest.spyOn(instance, 'isFailure').mockReturnValueOnce(false);
 
 				instance.error(Error('test error 098'));
 				expect(spyForceFailure).toBeCalledTimes(1);
