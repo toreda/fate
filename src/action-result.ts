@@ -1,76 +1,101 @@
-import {AROptions} from './options';
-import {ARState} from './state';
-import {ResultCode} from './result-code';
+import {ActionResultCode} from './action-result/code';
+import {ActionResultOptions} from './action-result/options';
+import {ActionResultState} from './action-result/state';
 
-export class ActionResult {
-	public readonly state: ARState;
-	public code: ResultCode;
-	public payload: any;
+type ToStringable = {toString: () => string};
 
-	constructor(options?: AROptions) {
-		this.state = new ARState(options);
-		this.code = ResultCode.NOT_SET;
-		this.payload = null;
+export class ActionResult<T> {
+	public readonly state: ActionResultState<T>;
+	public code: ActionResultCode;
+	public payload: T;
+
+	constructor(options?: ActionResultOptions<T>) {
+		this.state = new ActionResultState(options);
+		this.code = ActionResultCode.NOT_SET;
+
+		const parsed = this.parseOptions(options);
+		this.payload = parsed.payload as T;
 	}
 
-	public messages(messages: string[]): ActionResult {
-		if (!Array.isArray(messages)) {
-			return this;
-		}
+	public parseOptions(options: ActionResultOptions<T> = {}): ActionResultOptions<T> {
+		return {
+			payload: this.parseOptionsPayload(options)
+		};
+	}
 
-		for (const message of messages) {
-			if (typeof message !== 'string') {
-				continue;
-			}
+	public parseOptionsPayload(options: ActionResultOptions<T> = {}): T | undefined {
+		return options.payload;
+	}
 
-			this.state.messages.push(message);
-		}
-
+	public forceFailure(): ActionResult<T> {
+		this.code = ActionResultCode.FAILURE;
 		return this;
 	}
 
-	public message(message: string | string[]): ActionResult {
+	public forceSuccess(): ActionResult<T> {
+		this.code = ActionResultCode.SUCCESS;
+		return this;
+	}
+
+	public error(error: unknown): boolean {
+		if (Array.isArray(error)) {
+			error.forEach(this.error, this);
+		} else if (error instanceof Error) {
+			this.state.errorLog.push(error);
+		} else if (error != null && (error as ToStringable).toString) {
+			this.state.errorLog.push(Error((error as ToStringable).toString()));
+		} else {
+			this.state.errorLog.push(Error(JSON.stringify(error)));
+		}
+
+		if (!this.isFailure() && this.state.hasFailed()) {
+			this.forceFailure();
+		}
+
+		return !this.isFailure();
+	}
+
+	public message(message: unknown): ActionResult<T> {
 		if (Array.isArray(message)) {
-			return this.messages(message);
-		}
-
-		if (typeof message !== 'string') {
-			return this;
-		}
-
-		this.state.messages.push(message);
-		return this;
-	}
-
-	public error(errors: Error | Error[]): ActionResult {
-		if (Array.isArray(errors)) {
-			errors.forEach((error: Error) => {
-				this.state.errors.push(error);
-			});
+			message.forEach(this.message, this);
+		} else if (typeof message === 'string') {
+			this.state.messageLog.push(message);
+		} else if (message != null && (message as ToStringable).toString) {
+			this.state.messageLog.push((message as ToStringable).toString());
 		} else {
-			this.state.errors.push(errors);
+			this.state.messageLog.push(JSON.stringify(message));
 		}
 
 		return this;
 	}
 
-	public fail(): ActionResult {
-		this.code = ResultCode.FAILURE;
-		return this;
-	}
-
-	public succeed(): ActionResult {
-		this.code = ResultCode.SUCCESS;
-		return this;
-	}
-
-	public complete(): ActionResult {
+	public complete(): ActionResult<T> {
 		if (this.state.hasFailed()) {
-			this.code = ResultCode.FAILURE;
-		} else {
-			this.code = ResultCode.SUCCESS;
+			return this.forceFailure();
+		}
+
+		if (this.payload != null) {
+			return this.forceSuccess();
 		}
 
 		return this;
+	}
+
+	public getData(): T | Error[] {
+		if (this.complete().isFailure()) {
+			return this.state.errorLog;
+		}
+
+		return this.payload;
+	}
+
+	public isFailure(): boolean {
+		this.complete();
+		return this.code === ActionResultCode.FAILURE;
+	}
+
+	public isSuccess(): boolean {
+		this.complete();
+		return this.code === ActionResultCode.SUCCESS;
 	}
 }
