@@ -4,5 +4,9 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"sonarlint.connectedMode.project": {
+			"projectKey": "toreda_action-result"
+		}
+	}
 }
