@@ -2,8 +2,6 @@ import {ActionResultCode} from './action-result/code';
 import {ActionResultOptions} from './action-result/options';
 import {ActionResultState} from './action-result/state';
 
-type ToStringable = {toString: () => string};
-
 export class ActionResult<T> {
 	public readonly state: ActionResultState<T>;
 	public code: ActionResultCode;
@@ -42,8 +40,8 @@ export class ActionResult<T> {
 			error.forEach(this.error, this);
 		} else if (error instanceof Error) {
 			this.state.errorLog.push(error);
-		} else if (error != null && (error as ToStringable).toString) {
-			this.state.errorLog.push(Error((error as ToStringable).toString()));
+		} else if (checkIsToStringable(error)) {
+			this.state.errorLog.push(Error(error.toString()));
 		} else {
 			this.state.errorLog.push(Error(JSON.stringify(error)));
 		}
@@ -60,8 +58,8 @@ export class ActionResult<T> {
 			message.forEach(this.message, this);
 		} else if (typeof message === 'string') {
 			this.state.messageLog.push(message);
-		} else if (message != null && (message as ToStringable).toString) {
-			this.state.messageLog.push((message as ToStringable).toString());
+		} else if (checkIsToStringable(message)) {
+			this.state.messageLog.push(message.toString());
 		} else {
 			this.state.messageLog.push(JSON.stringify(message));
 		}
@@ -98,4 +96,25 @@ export class ActionResult<T> {
 		this.complete();
 		return this.code === ActionResultCode.SUCCESS;
 	}
+}
+
+type ToStringable = {toString: () => string};
+
+function checkIsToStringable(mightBeToStringable: unknown): mightBeToStringable is ToStringable {
+	if (mightBeToStringable == null) {
+		return false;
+	}
+
+	const assumeToStringable = mightBeToStringable as ToStringable;
+
+	if (typeof assumeToStringable.toString !== 'function') {
+		return false;
+	}
+
+	const asString = assumeToStringable.toString();
+	if (asString.toString().startsWith('[object')) {
+		return false;
+	}
+
+	return true;
 }

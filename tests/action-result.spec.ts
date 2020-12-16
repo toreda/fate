@@ -260,4 +260,178 @@ describe('ActionResult<T>', () => {
 			});
 		});
 	});
+
+	describe('Visual Confirmation Error', () => {
+		it('single error', () => {
+			const testData = Error('regular err');
+			const expectedResult = [testData];
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('single string', () => {
+			const testData = 'radio';
+			const expectedResult = [Error(testData)];
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('single number', () => {
+			const testData = 846891;
+			const expectedResult = [Error(testData.toString())];
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('array of errors', () => {
+			const testData = [Error('the'), Error('spanish'), Error('inquisition')];
+			const expectedResult = testData;
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('array of strings', () => {
+			const testData = ['orange', 'turtle', 'scuba'];
+			const expectedResult = testData.map((d) => Error(d));
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('array of arrays', () => {
+			const testData: any = [[123890, 983249], [198230], [729478], [705323, 491841, 987215]];
+			const expectedResult = testData.flat().map((d) => Error(d.toString()));
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('nested object', () => {
+			const testData = {idProp: 'random id', complicated: {artist: 'avril lavigne'}};
+			const expectedResult = [Error(JSON.stringify(testData))];
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('repeated calls', () => {
+			let testData: any;
+			const expectedResult: any[] = [];
+
+			testData = Error('failure to communicate');
+			expectedResult.push(testData);
+			instance.error(testData);
+
+			testData = 'banana';
+			expectedResult.push(Error(testData));
+			instance.error(testData);
+
+			testData = 728934;
+			expectedResult.push(Error(testData.toString()));
+			instance.error(testData);
+
+			testData = [Error('elf'), Error('on'), Error('the'), Error('shelf')];
+			testData.forEach((d) => expectedResult.push(d));
+			instance.error(testData);
+
+			testData = ['pirates', 'of', 'the', 'caribbean'];
+			testData.forEach((d) => expectedResult.push(Error(d)));
+			instance.error(testData);
+
+			testData = [1, [2], [3, 4], [5, [6, 7], 8], 9];
+			testData.flat(Infinity).forEach((d) => expectedResult.push(Error(d.toString())));
+			instance.error(testData);
+
+			testData = new ActionResult<string>({payload: 'great expectations'});
+			expectedResult.push(Error(JSON.stringify(testData)));
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+	});
+
+	describe('Visual Confirmation Message', () => {
+		it('single string', () => {
+			const testData = 'spice';
+			const expectedResult = [testData];
+
+			instance.message(testData);
+
+			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+		});
+
+		it('single number', () => {
+			const testData = 846891;
+			const expectedResult = [testData.toString()];
+
+			instance.message(testData);
+
+			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+		});
+
+		it('array of strings', () => {
+			const testData = ['zesty', 'lemon', 'drink'];
+			const expectedResult = testData;
+
+			instance.message(testData);
+
+			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+		});
+
+		it('array of arrays', () => {
+			const testData: any = [[123890, 983249], [198230], [729478], [705323, 491841, 987215]];
+			const expectedResult = testData.flat().map((d) => d.toString());
+
+			instance.message(testData);
+
+			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+		});
+
+		it('nested object', () => {
+			const testData = {unique: 'identification', complex: {linear: 'algebra'}};
+			const expectedResult = [JSON.stringify(testData)];
+
+			instance.message(testData);
+
+			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+		});
+
+		it('repeated calls', () => {
+			let testData: any;
+			const expectedResult: any[] = [];
+
+			testData = 'golden ticket';
+			expectedResult.push(testData);
+			instance.message(testData);
+
+			testData = 849562;
+			expectedResult.push(testData.toString());
+			instance.message(testData);
+
+			testData = ["what's", 'in', 'the', 'box'];
+			testData.forEach((d) => expectedResult.push(d));
+			instance.message(testData);
+
+			testData = [[9], 8, [7, 6, [5, 4, [3]]], [2, 1]];
+			testData.flat(Infinity).forEach((d) => expectedResult.push(d.toString()));
+			instance.message(testData);
+
+			testData = new ActionResult<string>({payload: 'lord of the flies'});
+			expectedResult.push(JSON.stringify(testData));
+			instance.message(testData);
+
+			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+		});
+	});
 });
