@@ -2,40 +2,14 @@ import {ActionResultCode} from './action-result/code';
 import {ActionResultOptions} from './action-result/options';
 import {ActionResultState} from './action-result/state';
 
-export class ActionResult<T> {
+export class ActionResult<T = unknown> {
 	public readonly state: ActionResultState<T>;
-	public code: ActionResultCode;
-	public payload: T;
 
 	constructor(options?: ActionResultOptions<T>) {
 		this.state = new ActionResultState(options);
-		this.code = ActionResultCode.NOT_SET;
-
-		const parsed = this.parseOptions(options);
-		this.payload = parsed.payload as T;
 	}
 
-	public parseOptions(options: ActionResultOptions<T> = {}): ActionResultOptions<T> {
-		return {
-			payload: this.parseOptionsPayload(options)
-		};
-	}
-
-	public parseOptionsPayload(options: ActionResultOptions<T> = {}): T | undefined {
-		return options.payload;
-	}
-
-	public forceFailure(): ActionResult<T> {
-		this.code = ActionResultCode.FAILURE;
-		return this;
-	}
-
-	public forceSuccess(): ActionResult<T> {
-		this.code = ActionResultCode.SUCCESS;
-		return this;
-	}
-
-	public error(error: unknown): boolean {
+	public error(error: unknown): ActionResult<T> {
 		if (Array.isArray(error)) {
 			error.forEach(this.error, this);
 		} else if (error instanceof Error) {
@@ -47,10 +21,10 @@ export class ActionResult<T> {
 		}
 
 		if (!this.isFailure() && this.state.hasFailed()) {
-			this.forceFailure();
+			this.state.forceFailure();
 		}
 
-		return !this.isFailure();
+		return this;
 	}
 
 	public message(message: unknown): ActionResult<T> {
@@ -69,11 +43,13 @@ export class ActionResult<T> {
 
 	public complete(): ActionResult<T> {
 		if (this.state.hasFailed()) {
-			return this.forceFailure();
+			this.state.forceFailure();
+			return this;
 		}
 
-		if (this.payload != null) {
-			return this.forceSuccess();
+		if (this.state.payload != null) {
+			this.state.forceSuccess();
+			return this;
 		}
 
 		return this;
@@ -84,17 +60,25 @@ export class ActionResult<T> {
 			return this.state.errorLog;
 		}
 
-		return this.payload;
+		if (this.state.payload == null) {
+			return [Error('payload is null')];
+		}
+
+		return this.state.payload;
 	}
 
 	public isFailure(): boolean {
 		this.complete();
-		return this.code === ActionResultCode.FAILURE;
+		return this.state.code === ActionResultCode.FAILURE;
 	}
 
 	public isSuccess(): boolean {
 		this.complete();
-		return this.code === ActionResultCode.SUCCESS;
+		return this.state.code === ActionResultCode.SUCCESS;
+	}
+
+	public serialize(): string {
+		return this.state.serialize();
 	}
 }
 
@@ -111,8 +95,7 @@ function checkIsToStringable(mightBeToStringable: unknown): mightBeToStringable 
 		return false;
 	}
 
-	const asString = assumeToStringable.toString();
-	if (asString.toString().startsWith('[object')) {
+	if (assumeToStringable.toString === Object.prototype.toString) {
 		return false;
 	}
 
