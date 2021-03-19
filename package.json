@@ -1,6 +1,6 @@
 {
-	"name": "@toreda/fate",
-	"version": "1.0.0",
+	"name": "@toreda/action-result",
+	"version": "0.3.0",
 	"description": "",
 	"public": true,
 	"main": "./dist/index.js",
@@ -11,15 +11,15 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/toreda/fate.git"
+		"url": "git+https://github.com/toreda/action-result.git"
 	},
 	"author": "Toreda, Inc.",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/toreda/fate/issues"
+		"url": "https://github.com/toreda/action-result/issues"
 	},
 	"prettier": "@toreda/prettier-config",
-	"homepage": "https://github.com/toreda/fate#readme",
+	"homepage": "https://github.com/toreda/action-result#readme",
 	"devDependencies": {
 		"@babel/register": "^7.11.5",
 		"@toreda/build-tools": "^0.1.3",
