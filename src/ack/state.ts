@@ -1,4 +1,4 @@
-import {ActionResultCode as CODE} from 'src/action-result/code';
+import {AckCode as CODE} from 'src/ack/code';
 
 export interface AckState<T = unknown> {
 	code: CODE;

@@ -1,5 +1,5 @@
 import {Ack} from 'src/ack';
-import {ActionResultCode as CODE} from 'src/action-result/code';
+import {AckCode as CODE} from 'src/ack/code';
 
 describe('Ack', () => {
 	const instance = new Ack();

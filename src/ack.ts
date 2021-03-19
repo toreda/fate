@@ -1,6 +1,6 @@
+import {AckCode as CODE} from 'src/ack/code';
+import {AckOptions as Options} from 'src/ack/options';
 import {AckState as State} from 'src/ack/state';
-import {ActionResultCode as CODE} from 'src/action-result/code';
-import {ActionResultOptions as Options} from 'src/action-result/options';
 import {json} from 'src/aliases';
 
 export class Ack<T = unknown> {
