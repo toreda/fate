@@ -1,6 +1,6 @@
-import {AckCode as CODE} from '../ack/code';
+import {FateCode as CODE} from './code';
 
-export interface AckState<T = unknown> {
+export interface FateState<T = unknown> {
 	code: CODE;
 	errorLog: Error[];
 	errorThreshold: number;

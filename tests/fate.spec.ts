@@ -1,8 +1,8 @@
-import {Ack} from 'src/ack';
-import {AckCode as CODE} from 'src/ack/code';
+import {Fate} from 'src/fate';
+import {FateCode as CODE} from 'src/fate/code';
 
-describe('Ack', () => {
-	const instance = new Ack();
+describe('Fate', () => {
+	const instance = new Fate();
 	const options = {
 		code: 1,
 		errorLog: [Error('Mock Error')],
@@ -23,42 +23,42 @@ describe('Ack', () => {
 	describe('INSTANTIATION', () => {
 		it('should not throw with no args', () => {
 			expect(() => {
-				new Ack();
+				new Fate();
 			}).not.toThrow();
 		});
 
 		it('should intialize code to 0', () => {
-			const custom = new Ack();
+			const custom = new Fate();
 
 			expect(custom.state.code).toBe(0);
 		});
 
 		it('should intialize errorThreshold to 0', () => {
-			const custom = new Ack();
+			const custom = new Fate();
 
 			expect(custom.state.errorThreshold).toBe(0);
 		});
 
 		it('should intialize errorLog to []', () => {
-			const custom = new Ack();
+			const custom = new Fate();
 
 			expect(custom.state.errorLog).toEqual([]);
 		});
 
 		it('should intialize messageLog to []', () => {
-			const custom = new Ack();
+			const custom = new Fate();
 
 			expect(custom.state.messageLog).toEqual([]);
 		});
 
 		it('should intialize payload to null', () => {
-			const custom = new Ack();
+			const custom = new Fate();
 
 			expect(custom.state.payload).toBeNull();
 		});
 
 		it('should use serialized options to init', () => {
-			const custom = new Ack({serialized});
+			const custom = new Fate({serialized});
 
 			expect(custom.state.code).toBe(options.code);
 			expect(custom.state.errorLog).toStrictEqual(options.errorLog);
@@ -71,7 +71,7 @@ describe('Ack', () => {
 			const errorThreshold = options.errorThreshold * 2;
 			const payload = options.payload + ' direct';
 
-			const custom = new Ack({serialized, errorThreshold, payload});
+			const custom = new Fate({serialized, errorThreshold, payload});
 
 			expect(custom.state.code).toBe(options.code);
 			expect(custom.state.errorLog).toStrictEqual(options.errorLog);
@@ -83,24 +83,24 @@ describe('Ack', () => {
 
 		it('should throw when serialized has flaws', () => {
 			expect(() => {
-				const result = new Ack({serialized: 'null'});
+				const result = new Fate({serialized: 'null'});
 				console.log(result);
 			}).toThrow();
 
 			expect(() => {
-				const result = new Ack({serialized: 'in{valid'});
+				const result = new Fate({serialized: 'in{valid'});
 				console.log(result);
 			}).toThrow();
 
 			expect(() => {
-				const result = new Ack({serialized: '{"errorThreshold": -1}'});
+				const result = new Fate({serialized: '{"errorThreshold": -1}'});
 				console.log(result);
 			}).toThrow();
 		});
 
 		it('should throw when options has flaws', () => {
 			expect(() => {
-				const result = new Ack({errorThreshold: -1});
+				const result = new Fate({errorThreshold: -1});
 				console.log(result);
 			}).toThrow();
 		});
@@ -211,7 +211,7 @@ describe('Ack', () => {
 		});
 
 		it('should return a json object with all properties', () => {
-			const custom = new Ack({errorThreshold: 33});
+			const custom = new Fate({errorThreshold: 33});
 			custom.state.code = -1;
 			custom.state.errorLog.push(Error('mock error toserialize'));
 			custom.state.messageLog.push('mock message toserialize');
@@ -339,7 +339,7 @@ describe('Ack', () => {
 			testData.flat(Infinity).forEach((d) => expectedResult.push(Error(d.toString())));
 			instance.error(testData);
 
-			testData = new Ack<string>({payload: 'great expectations'});
+			testData = new Fate<string>({payload: 'great expectations'});
 			expectedResult.push(Error(JSON.stringify(testData)));
 			instance.error(testData);
 
@@ -432,7 +432,7 @@ describe('Ack', () => {
 			testData.flat(Infinity).forEach((d) => expectedResult.push(d.toString()));
 			instance.message(testData);
 
-			testData = new Ack<string>({payload: 'lord of the flies'});
+			testData = new Fate<string>({payload: 'lord of the flies'});
 			expectedResult.push(JSON.stringify(testData));
 			instance.message(testData);
 

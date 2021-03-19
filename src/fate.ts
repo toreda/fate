@@ -1,9 +1,9 @@
-import {AckCode as CODE} from './ack/code';
-import {AckOptions as Options} from './ack/options';
-import {AckState as State} from './ack/state';
 import {ToStringable, json} from './aliases';
+import {FateCode as CODE} from './fate/code';
+import {FateOptions as Options} from './fate/options';
+import {FateState as State} from './fate/state';
 
-export class Ack<T = unknown> {
+export class Fate<T = unknown> {
 	public readonly state: State<T>;
 
 	constructor(options: Options<T> = {}) {
@@ -154,7 +154,7 @@ export class Ack<T = unknown> {
 		return state;
 	}
 
-	public error(error: unknown): Ack<T> {
+	public error(error: unknown): Fate<T> {
 		if (Array.isArray(error)) {
 			error.forEach(this.error, this);
 		} else if (error instanceof Error) {
@@ -172,7 +172,7 @@ export class Ack<T = unknown> {
 		return this;
 	}
 
-	public message(message: unknown): Ack<T> {
+	public message(message: unknown): Fate<T> {
 		if (Array.isArray(message)) {
 			message.forEach(this.message, this);
 		} else if (typeof message === 'string') {
