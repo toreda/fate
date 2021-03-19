@@ -1,26 +1,26 @@
 import {AckCode as CODE} from 'src/ack/code';
 import {AckOptions as Options} from 'src/ack/options';
 import {AckState as State} from 'src/ack/state';
-import {json} from 'src/aliases';
+import {ToStringable, json} from 'src/aliases';
 
 export class Ack<T = unknown> {
 	public readonly state: State<T>;
 
 	constructor(options: Options<T> = {}) {
-		const fromSerial = this.parseOptionsSerialized(options.serialized);
-		const finalState = this.parseOptionsOverrides(fromSerial, options);
+		const fromSerial = this.parseSerialized(options.serialized);
+		const finalState = this.parseOptions(fromSerial, options);
 
 		this.state = finalState;
 	}
 
-	private parseOptionsSerialized(serialized?: string): State<T> {
+	private parseSerialized(serialized?: string): State<T> {
 		const state = this.getDefaultState();
 
 		if (!serialized || typeof serialized !== 'string') {
 			return state;
 		}
 
-		const parsed = this.parseJson(serialized);
+		const parsed = this.convertStringToJson(serialized);
 
 		if (Array.isArray(parsed)) {
 			throw parsed;
@@ -45,12 +45,12 @@ export class Ack<T = unknown> {
 		};
 	}
 
-	private parseJson(json: json): State<T> | Error[] {
+	private convertStringToJson(serialized: string): State<T> | Error[] {
 		let result: State<T> | Error[];
 		let errors: Error[] = [];
 
 		try {
-			const parsed = JSON.parse(json);
+			const parsed = JSON.parse(serialized);
 
 			if (parsed) {
 				errors = this.getStateErrors(parsed);
@@ -128,7 +128,7 @@ export class Ack<T = unknown> {
 		return error;
 	}
 
-	private parseOptionsOverrides(stateArg: State<T>, options: Options<T>): State<T> {
+	private parseOptions(stateArg: State<T>, options: Options<T>): State<T> {
 		const state: State<T> = stateArg;
 
 		const errors: Error[] = [];
@@ -284,5 +284,3 @@ export class Ack<T = unknown> {
 		return list;
 	}
 }
-
-type ToStringable = {toString: () => string};

@@ -2,3 +2,5 @@
 export type ANY = any;
 export type json = any;
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+export type ToStringable = {toString: () => string};
