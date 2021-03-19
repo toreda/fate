@@ -26,7 +26,7 @@ export class Ack<T = unknown> {
 			throw parsed;
 		}
 
-		parsed.errorLog = parsed.errorLog.map((err) => this.parseError(err));
+		parsed.errorLog = parsed.errorLog.map(this.parseError);
 
 		for (const key in parsed) {
 			state[key] = parsed[key];
@@ -119,11 +119,11 @@ export class Ack<T = unknown> {
 		return errors;
 	}
 
-	private parseError(json: json): Error {
+	private parseError(jsonObj: json): Error {
 		const error = Error();
 
-		error.message = json.message;
-		error.stack = json.stack;
+		error.message = jsonObj.message;
+		error.stack = jsonObj.stack;
 
 		return error;
 	}
@@ -229,11 +229,13 @@ export class Ack<T = unknown> {
 	}
 
 	private forceFailure(): CODE.FAILURE {
-		return (this.state.code = CODE.FAILURE);
+		this.state.code = CODE.FAILURE;
+		return this.state.code;
 	}
 
 	private forceSuccess(): CODE.SUCCESS {
-		return (this.state.code = CODE.SUCCESS);
+		this.state.code = CODE.SUCCESS;
+		return this.state.code;
 	}
 
 	public getData(): T | Error[] {
@@ -260,7 +262,7 @@ export class Ack<T = unknown> {
 		return JSON.stringify(state, this.serializeErrors);
 	}
 
-	private serializeErrors(key: string, errors: unknown): unknown {
+	private serializeErrors(_key: string, errors: unknown): unknown {
 		if (!Array.isArray(errors) || errors.length === 0) {
 			return errors;
 		}
