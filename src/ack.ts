@@ -1,7 +1,7 @@
-import {AckCode as CODE} from 'src/ack/code';
-import {AckOptions as Options} from 'src/ack/options';
-import {AckState as State} from 'src/ack/state';
-import {ToStringable, json} from 'src/aliases';
+import {AckCode as CODE} from './ack/code';
+import {AckOptions as Options} from './ack/options';
+import {AckState as State} from './ack/state';
+import {ToStringable, json} from './aliases';
 
 export class Ack<T = unknown> {
 	public readonly state: State<T>;

@@ -1,4 +1,4 @@
-import {AckCode as CODE} from 'src/ack/code';
+import {AckCode as CODE} from '../ack/code';
 
 export interface AckState<T = unknown> {
 	code: CODE;
