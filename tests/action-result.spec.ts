@@ -1,13 +1,9 @@
-import {ActionResult} from '../src/action-result';
-import {ActionResultCode} from '../src/action-result/code';
-import {ActionResultState} from '../src/action-result/state';
+import {ActionResult} from 'src/action-result';
+import {ActionResultCode} from 'src/action-result/code';
+import {ActionResultState} from 'src/action-result/state';
 
 describe('ActionResult<T>', () => {
-	let instance: ActionResult<string>;
-
-	beforeAll(() => {
-		instance = new ActionResult<string>({errorThreshold: Infinity});
-	});
+	const instance = new ActionResult<string>({errorThreshold: Infinity});
 
 	beforeEach(() => {
 		instance.payload = (undefined as unknown) as string;
@@ -20,14 +16,6 @@ describe('ActionResult<T>', () => {
 		describe('constructor', () => {
 			it('should initialize state', () => {
 				expect(instance.state).not.toBeUndefined();
-			});
-
-			it('should intialize code to NOT_SET', () => {
-				expect(instance.code).toBe(ActionResultCode.NOT_SET);
-			});
-
-			it('should initialize payload to undefined', () => {
-				expect(instance.payload).toBeUndefined();
 			});
 
 			it('should not throw with no args', () => {
@@ -86,23 +74,23 @@ describe('ActionResult<T>', () => {
 	describe('Helpers', () => {
 		describe('forceFailure', () => {
 			it('should change the code to FAILURE', () => {
-				instance.forceFailure();
+				instance.state.forceFailure();
 				expect(instance.code).toBe(ActionResultCode.FAILURE);
 			});
 
 			it('should return ActionResult', () => {
-				expect(instance.forceFailure()).toBe(instance);
+				expect(instance.state.forceFailure()).toBe(instance);
 			});
 		});
 
 		describe('forceSuccess', () => {
 			it('should change the code to SUCCESS', () => {
-				instance.forceSuccess();
+				instance.state.forceSuccess();
 				expect(instance.code).toBe(ActionResultCode.SUCCESS);
 			});
 
 			it('should return ActionResult', () => {
-				expect(instance.forceSuccess()).toBe(instance);
+				expect(instance.state.forceSuccess()).toBe(instance);
 			});
 		});
 	});
@@ -205,16 +193,8 @@ describe('ActionResult<T>', () => {
 				expect(spyForceFailure).not.toBeCalled();
 			});
 
-			it('should return false if code is FAILURE', () => {
-				instance.forceFailure();
-				expect(instance.error(Error('test error 555'))).toBe(false);
-			});
-
-			it('should return true if code is not FAILURE', () => {
-				expect(instance.error(Error('test error 935'))).toBe(true);
-
-				instance.forceSuccess();
-				expect(instance.error(Error('test error 721'))).toBe(true);
+			it('should return ActionResult', () => {
+				expect(instance.error(Error('test error 555'))).toBe(instance);
 			});
 		});
 
@@ -257,6 +237,21 @@ describe('ActionResult<T>', () => {
 			])('should return %p when code is %s', (expectedV, testCode) => {
 				instance.code = ActionResultCode[testCode];
 				expect(instance[description]()).toBe(expectedV);
+			});
+		});
+
+		describe('serialize', () => {
+			it('should return a json object with all properties', () => {
+				const custom = new ActionResult({payload: 7});
+
+				const result = custom.serialize();
+
+				expect(result).toMatch('code');
+				expect(result).toMatch('payload');
+				expect(result).toMatch('state');
+				expect(result).toMatch('errorLog');
+				expect(result).toMatch('errorThreshold');
+				expect(result).toMatch('messageLog');
 			});
 		});
 	});
@@ -319,6 +314,26 @@ describe('ActionResult<T>', () => {
 		it('nested object', () => {
 			const testData = {idProp: 'random id', complicated: {artist: 'avril lavigne'}};
 			const expectedResult = [Error(JSON.stringify(testData))];
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('custom object with non function toString prop', () => {
+			const testData = {toString: 'not a function'};
+			const expectedResult = [Error(JSON.stringify(testData))];
+
+			instance.error(testData);
+
+			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+		});
+
+		it('custom object with custom toString function', () => {
+			const testData = {randomData: 'could be anything'};
+			testData.toString = () => `this.randomData = "${testData.randomData}"}`;
+
+			const expectedResult = [Error(testData.toString())];
 
 			instance.error(testData);
 
@@ -401,6 +416,25 @@ describe('ActionResult<T>', () => {
 		it('nested object', () => {
 			const testData = {unique: 'identification', complex: {linear: 'algebra'}};
 			const expectedResult = [JSON.stringify(testData)];
+
+			instance.message(testData);
+
+			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+		});
+
+		it('custom object with non function toString prop', () => {
+			const testData = {toString: 'not what you expect'};
+			const expectedResult = [JSON.stringify(testData)];
+
+			instance.message(testData);
+
+			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+		});
+
+		it('custom object with custom toString function', () => {
+			const testData = {randomData: 'here is the stuff'};
+			testData.toString = () => `this.randomData = "${testData.randomData}"}`;
+			const expectedResult = [testData.toString()];
 
 			instance.message(testData);
 
