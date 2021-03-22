@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"sonarlint.connectedMode.project": {
+			"projectKey": "toreda_fate"
+		},
+		"files.exclude": {
+			".gitattributes": true,
+			".github": true,
+			".gitignore": true,
+			".npmignore": true,
+			"LICENSE": true,
+			"node_modules": true,
+			"sonar-project.properties": true,
+			"yarn.lock": true
+		}
+	}
+}
