@@ -1,4 +1,4 @@
-import {ToStringable, json} from './aliases';
+import {jsonType} from '@toreda/types';
 import {FateCode as CODE} from './fate/code';
 import {FateOptions as Options} from './fate/options';
 import {FateState as State} from './fate/state';
@@ -119,7 +119,7 @@ export class Fate<T = unknown> {
 		return errors;
 	}
 
-	private parseError(jsonObj: json): Error {
+	private parseError(jsonObj: jsonType): Error {
 		const error = Error();
 
 		error.message = jsonObj.message;
@@ -286,3 +286,5 @@ export class Fate<T = unknown> {
 		return list;
 	}
 }
+
+type ToStringable = {toString: () => string};
