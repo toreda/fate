@@ -1,7 +1,6 @@
-import {dest, parallel, series, src} from 'gulp';
-
-import {BuildTools} from '@toreda/build-tools';
 import {EventEmitter} from 'events';
+import {series, src} from 'gulp';
+import {BuildTools} from '@toreda/build-tools';
 
 const eslint = require('gulp-eslint');
 
@@ -27,7 +26,7 @@ function createDist() {
 }
 
 function cleanDist() {
-	return build.clean.dir('./dist');
+	return build.cleaner.dir('./dist');
 }
 
 function buildSrc() {
