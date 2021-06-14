@@ -1,4 +1,3 @@
 export {Fate} from './fate';
-export {FateCode} from './fate/code';
+export {FateObject} from './fate/object';
 export {FateOptions} from './fate/options';
-export {FateState} from './fate/state';

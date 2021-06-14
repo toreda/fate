@@ -1,52 +1,52 @@
-import {ToStringable, json} from './aliases';
-import {FateCode as CODE} from './fate/code';
-import {FateOptions as Options} from './fate/options';
-import {FateState as State} from './fate/state';
+import {jsonType} from '@toreda/types';
+import {FateObject} from './fate/object';
+import {FateOptions} from './fate/options';
 
 export class Fate<T = unknown> {
-	public readonly state: State<T>;
+	public data: T | null;
 
-	constructor(options: Options<T> = {}) {
-		const fromSerial = this.parseSerialized(options.serialized);
-		const finalState = this.parseOptions(fromSerial, options);
+	public readonly errorLog: FateObject['errorLog'];
+	public readonly messageLog: FateObject['messageLog'];
+	public readonly errorThreshold: FateObject['errorThreshold'];
 
-		this.state = finalState;
-	}
+	private _status: FateObject['status'];
 
-	private parseSerialized(serialized?: string): State<T> {
-		const state = this.getDefaultState();
+	constructor(options: FateOptions<T> = {}) {
+		this.data = null;
 
-		if (!serialized || typeof serialized !== 'string') {
-			return state;
+		this.errorLog = [];
+		this.messageLog = [];
+		this.errorThreshold = 0;
+
+		this._status = 0;
+
+		if (options.serialized) {
+			const state = this.convertStringToJson(options.serialized);
+
+			if (Array.isArray(state)) {
+				throw state;
+			}
+
+			this.data = state.data;
+
+			this.errorLog = state.errorLog.map(this.parseError);
+			this.messageLog = state.messageLog;
+			this.errorThreshold = state.errorThreshold;
+
+			this._status = state.status;
 		}
 
-		const parsed = this.convertStringToJson(serialized);
-
-		if (Array.isArray(parsed)) {
-			throw parsed;
+		if (options.data) {
+			this.data = options.data;
 		}
 
-		parsed.errorLog = parsed.errorLog.map(this.parseError);
-
-		for (const key in parsed) {
-			state[key] = parsed[key];
+		if (options.errorThreshold != null) {
+			this.errorThreshold = options.errorThreshold;
 		}
-
-		return state;
 	}
 
-	private getDefaultState(): State<T> {
-		return {
-			code: CODE.NOT_SET,
-			errorLog: [],
-			errorThreshold: 0,
-			messageLog: [],
-			payload: null
-		};
-	}
-
-	private convertStringToJson(serialized: string): State<T> | Error[] {
-		let result: State<T> | Error[];
+	private convertStringToJson(serialized: string): FateObject<T> | Error[] {
+		let result: FateObject<T> | Error[];
 		let errors: Error[] = [];
 
 		try {
@@ -57,7 +57,7 @@ export class Fate<T = unknown> {
 			}
 
 			if (errors.length || !parsed) {
-				throw new Error('state is not valid');
+				throw Error('Serialized Fate is not valid.');
 			}
 
 			result = parsed;
@@ -68,23 +68,18 @@ export class Fate<T = unknown> {
 		return result;
 	}
 
-	private getStateErrors(state: State<T>): Error[] {
+	private getStateErrors(state: FateObject<T>): Error[] {
 		const errors: Error[] = [];
 
-		errors.push(...this.getStateErrorsCode(state.code));
-		errors.push(...this.getStateErrorsErrorThreshold(state.errorThreshold));
-		errors.push(...this.getStateErrorsErrorLog(state.errorLog));
-		errors.push(...this.getStateErrorsMessageLog(state.messageLog));
-
-		return errors;
-	}
-
-	private getStateErrorsCode(data: unknown): Error[] {
-		const errors: Error[] = [];
-
-		if (data == null || typeof data !== 'number' || data > 1 || data < -1) {
-			errors.push(Error('code must be -1, 0, or 1.'));
+		if (state.errorLog) {
+			errors.push(...this.getStateErrorsErrorLog(state.errorLog));
 		}
+		if (state.messageLog) {
+			errors.push(...this.getStateErrorsMessageLog(state.messageLog));
+		}
+
+		errors.push(...this.getStateErrorsErrorThreshold(state.errorThreshold));
+		errors.push(...this.getStateErrorsStatus(state.status));
 
 		return errors;
 	}
@@ -93,7 +88,7 @@ export class Fate<T = unknown> {
 		const errors: Error[] = [];
 
 		if (data == null || typeof data !== 'number' || data < 0) {
-			errors.push(Error('errorThreshold must be 0 or greater.'));
+			errors.push(Error('Fate errorThreshold must be 0 or greater.'));
 		}
 
 		return errors;
@@ -103,7 +98,7 @@ export class Fate<T = unknown> {
 		const errors: Error[] = [];
 
 		if (data == null || !Array.isArray(data)) {
-			errors.push(Error('errorLog must be an array.'));
+			errors.push(Error('Fate errorLog must be an array.'));
 		}
 
 		return errors;
@@ -113,77 +108,20 @@ export class Fate<T = unknown> {
 		const errors: Error[] = [];
 
 		if (data == null || !Array.isArray(data)) {
-			errors.push(Error('messageLog must be an array.'));
+			errors.push(Error('Fate messageLog must be an array.'));
 		}
 
 		return errors;
 	}
 
-	private parseError(jsonObj: json): Error {
-		const error = Error();
-
-		error.message = jsonObj.message;
-		error.stack = jsonObj.stack;
-
-		return error;
-	}
-
-	private parseOptions(stateArg: State<T>, options: Options<T>): State<T> {
-		const state: State<T> = stateArg;
-
+	private getStateErrorsStatus(data: unknown): Error[] {
 		const errors: Error[] = [];
 
-		if (options.errorThreshold != null) {
-			const e = this.getStateErrorsErrorThreshold(options.errorThreshold);
-
-			if (e.length) {
-				errors.push(...e);
-			} else {
-				state.errorThreshold = options.errorThreshold;
-			}
+		if (data == null || typeof data !== 'number' || data > 1 || data < -1) {
+			errors.push(Error('Fate status must be -1, 0, or 1.'));
 		}
 
-		if (options.payload != null) {
-			state.payload = options.payload;
-		}
-
-		if (errors.length) {
-			throw errors;
-		}
-
-		return state;
-	}
-
-	public error(error: unknown): Fate<T> {
-		if (Array.isArray(error)) {
-			error.forEach(this.error, this);
-		} else if (error instanceof Error) {
-			this.state.errorLog.push(error);
-		} else if (this.checkIsToStringable(error)) {
-			this.state.errorLog.push(Error(error.toString()));
-		} else {
-			this.state.errorLog.push(Error(JSON.stringify(error)));
-		}
-
-		if (this.errorThresholdBreached()) {
-			this.forceFailure();
-		}
-
-		return this;
-	}
-
-	public message(message: unknown): Fate<T> {
-		if (Array.isArray(message)) {
-			message.forEach(this.message, this);
-		} else if (typeof message === 'string') {
-			this.state.messageLog.push(message);
-		} else if (this.checkIsToStringable(message)) {
-			this.state.messageLog.push(message.toString());
-		} else {
-			this.state.messageLog.push(JSON.stringify(message));
-		}
-
-		return this;
+		return errors;
 	}
 
 	private checkIsToStringable(mightBeToStringable: unknown): mightBeToStringable is ToStringable {
@@ -204,60 +142,83 @@ export class Fate<T = unknown> {
 		return true;
 	}
 
-	public isFailure(): boolean {
-		return this.calculateCode() === CODE.FAILURE;
-	}
+	public error(error: unknown): Fate<T> {
+		if (Array.isArray(error)) {
+			error.forEach(this.error, this);
+		} else if (error instanceof Error) {
+			this.errorLog.push(error);
+		} else if (this.checkIsToStringable(error)) {
+			this.errorLog.push(Error(error.toString()));
+		} else {
+			this.errorLog.push(Error(JSON.stringify(error)));
+		}
 
-	public isSuccess(): boolean {
-		return this.calculateCode() === CODE.SUCCESS;
-	}
-
-	private calculateCode(): CODE {
 		if (this.errorThresholdBreached()) {
-			return this.forceFailure();
+			this._status = -1;
 		}
 
-		if (this.state.payload != null) {
-			return this.forceSuccess();
+		return this;
+	}
+
+	public message(message: unknown): Fate<T> {
+		if (Array.isArray(message)) {
+			message.forEach(this.message, this);
+		} else if (typeof message === 'string') {
+			this.messageLog.push(message);
+		} else if (this.checkIsToStringable(message)) {
+			this.messageLog.push(message.toString());
+		} else {
+			this.messageLog.push(JSON.stringify(message));
 		}
 
-		return this.state.code;
+		return this;
+	}
+
+	public status(): FateObject['status'];
+	public status(status: number): void;
+	public status(status?: number): FateObject['status'] | void {
+		if (!status) {
+			return this._status;
+		}
+
+		if (typeof status !== 'number') {
+			return;
+		}
+
+		if (isNaN(status)) {
+			return;
+		}
+
+		if (status % 1 !== 0) {
+			return;
+		}
+
+		if (status > 1) {
+			return;
+		}
+
+		if (status < -1) {
+			return;
+		}
+
+		this._status = status as FateObject['status'];
 	}
 
 	private errorThresholdBreached(): boolean {
-		return this.state.errorLog.length > this.state.errorThreshold;
+		return this.errorLog.length > this.errorThreshold;
 	}
 
-	private forceFailure(): CODE.FAILURE {
-		this.state.code = CODE.FAILURE;
-		return this.state.code;
-	}
-
-	private forceSuccess(): CODE.SUCCESS {
-		this.state.code = CODE.SUCCESS;
-		return this.state.code;
-	}
-
-	public getData(): T | Error[] {
-		if (this.isFailure()) {
-			return this.state.errorLog;
-		}
-
-		if (this.state.payload == null) {
-			return [Error('Payload is null.')];
-		}
-
-		return this.state.payload;
-	}
-
-	public serialize(): string {
-		const state = {
-			code: this.state.code,
-			errorLog: this.state.errorLog,
-			errorThreshold: this.state.errorThreshold,
-			messageLog: this.state.messageLog,
-			payload: this.state.payload
+	public serialize(includeLogs = true): string {
+		const state: Record<string, unknown> = {
+			data: this.data,
+			errorThreshold: this.errorThreshold,
+			status: this._status
 		};
+
+		if (includeLogs) {
+			state.errorLog = this.errorLog;
+			state.messageLog = this.messageLog;
+		}
 
 		return JSON.stringify(state, this.serializeErrors);
 	}
@@ -285,4 +246,15 @@ export class Fate<T = unknown> {
 
 		return list;
 	}
+
+	private parseError(jsonObj: jsonType): Error {
+		const error = Error();
+
+		error.message = jsonObj.message;
+		error.stack = jsonObj.stack;
+
+		return error;
+	}
 }
+
+type ToStringable = {toString: () => string};

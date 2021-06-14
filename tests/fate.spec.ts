@@ -1,26 +1,25 @@
 import {Fate} from 'src/fate';
-import {FateCode as CODE} from 'src/fate/code';
 
 describe('Fate', () => {
 	const instance = new Fate();
 	const options = {
-		code: 1,
+		data: 'mock payload',
 		errorLog: [Error('Mock Error')],
 		errorThreshold: 99,
 		messageLog: ['Mock Message'],
-		payload: 'mock payload'
+		status: 1
 	};
 	const serialized = JSON.stringify(options, instance['serializeErrors']);
 
 	afterEach(() => {
-		instance.state.code = CODE.NOT_SET;
-		instance.state.errorLog.length = 0;
-		instance.state.errorThreshold = Infinity;
-		instance.state.messageLog.length = 0;
-		instance.state.payload = null;
+		instance.status(0);
+		instance.errorLog.length = 0;
+		Object.defineProperty(instance, 'errorThreshold', {value: Infinity});
+		instance.messageLog.length = 0;
+		instance.data = null;
 	});
 
-	describe('INSTANTIATION', () => {
+	describe('Construction', () => {
 		it('should not throw with no args', () => {
 			expect(() => {
 				new Fate();
@@ -30,55 +29,55 @@ describe('Fate', () => {
 		it('should intialize code to 0', () => {
 			const custom = new Fate();
 
-			expect(custom.state.code).toBe(0);
+			expect(custom.status()).toBe(0);
 		});
 
 		it('should intialize errorThreshold to 0', () => {
 			const custom = new Fate();
 
-			expect(custom.state.errorThreshold).toBe(0);
+			expect(custom.errorThreshold).toBe(0);
 		});
 
 		it('should intialize errorLog to []', () => {
 			const custom = new Fate();
 
-			expect(custom.state.errorLog).toEqual([]);
+			expect(custom.errorLog).toEqual([]);
 		});
 
 		it('should intialize messageLog to []', () => {
 			const custom = new Fate();
 
-			expect(custom.state.messageLog).toEqual([]);
+			expect(custom.messageLog).toEqual([]);
 		});
 
-		it('should intialize payload to null', () => {
+		it('should intialize data to null', () => {
 			const custom = new Fate();
 
-			expect(custom.state.payload).toBeNull();
+			expect(custom.data).toBeNull();
 		});
 
 		it('should use serialized options to init', () => {
 			const custom = new Fate({serialized});
 
-			expect(custom.state.code).toBe(options.code);
-			expect(custom.state.errorLog).toStrictEqual(options.errorLog);
-			expect(custom.state.errorThreshold).toBe(options.errorThreshold);
-			expect(custom.state.messageLog).toStrictEqual(options.messageLog);
-			expect(custom.state.payload).toStrictEqual(options.payload);
+			expect(custom.data).toStrictEqual(options.data);
+			expect(custom.errorLog).toStrictEqual(options.errorLog);
+			expect(custom.errorThreshold).toBe(options.errorThreshold);
+			expect(custom.messageLog).toStrictEqual(options.messageLog);
+			expect(custom.status()).toBe(options.status);
 		});
 
 		it('should prioritize defined options over serialized', () => {
 			const errorThreshold = options.errorThreshold * 2;
-			const payload = options.payload + ' direct';
+			const data = options.data + ' direct';
 
-			const custom = new Fate({serialized, errorThreshold, payload});
+			const custom = new Fate({serialized, errorThreshold, data});
 
-			expect(custom.state.code).toBe(options.code);
-			expect(custom.state.errorLog).toStrictEqual(options.errorLog);
-			expect(custom.state.messageLog).toStrictEqual(options.messageLog);
+			expect(custom.status()).toBe(options.status);
+			expect(custom.errorLog).toStrictEqual(options.errorLog);
+			expect(custom.messageLog).toStrictEqual(options.messageLog);
 
-			expect(custom.state.errorThreshold).toBe(errorThreshold);
-			expect(custom.state.payload).toStrictEqual(payload);
+			expect(custom.errorThreshold).toBe(errorThreshold);
+			expect(custom.data).toStrictEqual(data);
 		});
 
 		it('should throw when serialized has flaws', () => {
@@ -97,133 +96,63 @@ describe('Fate', () => {
 				console.log(result);
 			}).toThrow();
 		});
-
-		it('should throw when options has flaws', () => {
-			expect(() => {
-				const result = new Fate({errorThreshold: -1});
-				console.log(result);
-			}).toThrow();
-		});
 	});
 
-	describe.each(['ERROR', 'MESSAGE'])('ADDING %sS', (name) => {
+	describe.each(['Error', 'Message'])('Adding %ss', (name) => {
 		const func = name.toLowerCase();
 		const log = `${func}Log`;
 
 		it(`should add single ${func} to ${log}`, () => {
-			expect(instance.state[log].length).toBe(0);
+			expect(instance[log].length).toBe(0);
 			let counter = 0;
 
 			while (counter < 5) {
 				counter++;
 				instance[func](`new ${func} ${counter}`);
-				expect(instance.state[log].length).toBe(counter);
+				expect(instance[log].length).toBe(counter);
 			}
 		});
 
 		it(`should add multiple ${func}s to ${log}`, () => {
-			expect(instance.state[log].length).toBe(0);
+			expect(instance[log].length).toBe(0);
 
 			const customlog = ['string test', 918230, {key: 'value'}, null, Error('error message')];
 
 			instance[func](customlog);
-			expect(instance.state[log].length).toBe(customlog.length);
+			expect(instance[log].length).toBe(customlog.length);
 		});
 	});
 
-	describe('ADDING ERRORS', () => {
+	describe('Adding Errors', () => {
 		it('should change code to FAILURE if threshold is reached', () => {
-			instance.state.errorThreshold = 0;
-			expect(instance.state.code).toBe(CODE.NOT_SET);
+			Object.defineProperty(instance, 'errorThreshold', {value: 0});
+			expect(instance.status()).toBe(0);
 
 			instance.error('forces failure');
 
-			expect(instance.state.code).toBe(CODE.FAILURE);
+			expect(instance.status()).toBe(-1);
 		});
 	});
 
-	describe('GET CODE STATUS', () => {
-		describe.each([
-			['isFailure', 'FAILURE'],
-			['isSuccess', 'SUCCESS']
-		])('%s', (description, descriptionCode) => {
-			it.each([
-				[descriptionCode === 'NOT_SET', 'NOT_SET'],
-				[descriptionCode === 'SUCCESS', 'SUCCESS'],
-				[descriptionCode === 'FAILURE', 'FAILURE']
-			])('should return %p when code is %s', (expectedV, testCode) => {
-				instance.state.code = CODE[testCode];
-				expect(instance[description]()).toBe(expectedV);
-			});
-
-			it('should compare to FAILURE when errorThreshold is reached', () => {
-				instance.state.errorThreshold = 0;
-				instance.error('first error');
-
-				expect(instance[description]()).toBe(descriptionCode === 'FAILURE');
-			});
-
-			it('should compare to SUCCESS when payload is not null', () => {
-				instance.state.payload = 0;
-
-				expect(instance[description]()).toBe(descriptionCode === 'SUCCESS');
-			});
-		});
-	});
-
-	describe('GET RESULT', () => {
-		it('should return the errors if code is FAILURE', () => {
-			const spy = jest.spyOn(instance, 'isFailure').mockReturnValue(true);
-
-			expect(instance.getData()).toBe(instance.state.errorLog);
-			instance.error(Error('getData 47859'));
-			expect(instance.getData()).toBe(instance.state.errorLog);
-			instance.error(Error('getData 75168'));
-			expect(instance.getData()).toBe(instance.state.errorLog);
-			instance.error(Error('getData 23890'));
-			expect(instance.getData()).toBe(instance.state.errorLog);
-
-			spy.mockRestore();
-		});
-
-		it('should return an error if payload is null', () => {
-			const spy = jest.spyOn(instance, 'isFailure').mockReturnValue(false);
-			instance.state.payload = null;
-
-			expect(instance.getData()).toStrictEqual([Error('Payload is null.')]);
-
-			spy.mockRestore();
-		});
-
-		it('should return the payload if it is not null', () => {
-			const spy = jest.spyOn(instance, 'isFailure').mockReturnValue(false);
-			instance.state.payload = 'success payload';
-
-			expect(instance.getData()).toBe(instance.state.payload);
-
-			spy.mockRestore();
-		});
-	});
-
-	describe('SERIALIZE', () => {
+	describe('Serialize', () => {
 		it('should return a string', () => {
 			expect(typeof instance.serialize()).toBe('string');
 		});
 
 		it('should return a json object with all properties', () => {
 			const custom = new Fate({errorThreshold: 33});
-			custom.state.code = -1;
-			custom.state.errorLog.push(Error('mock error toserialize'));
-			custom.state.messageLog.push('mock message toserialize');
-			custom.state.payload = options.payload + ' toserialize';
+			custom.status(-1);
+			custom.errorLog.push(Error('mock error toserialize'));
+			custom.messageLog.push('mock message toserialize');
+			custom.data = options.data + ' toserialize';
 
 			const result = custom.serialize();
 
-			expect(result).toMatch('code');
+			expect(result).toMatch('status');
 			expect(result).toMatch('errorLog');
 			expect(result).toMatch('errorThreshold');
 			expect(result).toMatch('messageLog');
-			expect(result).toMatch('payload');
+			expect(result).toMatch('data');
 		});
 	});
 
@@ -234,7 +163,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('single string', () => {
@@ -243,7 +172,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('single number', () => {
@@ -252,7 +181,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('array of errors', () => {
@@ -261,7 +190,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('array of strings', () => {
@@ -270,7 +199,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('array of arrays', () => {
@@ -279,7 +208,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('nested object', () => {
@@ -288,7 +217,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('custom object with non function toString prop', () => {
@@ -297,7 +226,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('custom object with custom toString function', () => {
@@ -308,7 +237,7 @@ describe('Fate', () => {
 
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 
 		it('repeated calls', () => {
@@ -339,11 +268,11 @@ describe('Fate', () => {
 			testData.flat(Infinity).forEach((d) => expectedResult.push(Error(d.toString())));
 			instance.error(testData);
 
-			testData = new Fate<string>({payload: 'great expectations'});
+			testData = new Fate<string>({data: 'great expectations'});
 			expectedResult.push(Error(JSON.stringify(testData)));
 			instance.error(testData);
 
-			expect(instance.state.errorLog).toStrictEqual(expectedResult);
+			expect(instance.errorLog).toStrictEqual(expectedResult);
 		});
 	});
 
@@ -354,7 +283,7 @@ describe('Fate', () => {
 
 			instance.message(testData);
 
-			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+			expect(instance.messageLog).toStrictEqual(expectedResult);
 		});
 
 		it('single number', () => {
@@ -363,7 +292,7 @@ describe('Fate', () => {
 
 			instance.message(testData);
 
-			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+			expect(instance.messageLog).toStrictEqual(expectedResult);
 		});
 
 		it('array of strings', () => {
@@ -372,7 +301,7 @@ describe('Fate', () => {
 
 			instance.message(testData);
 
-			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+			expect(instance.messageLog).toStrictEqual(expectedResult);
 		});
 
 		it('array of arrays', () => {
@@ -381,7 +310,7 @@ describe('Fate', () => {
 
 			instance.message(testData);
 
-			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+			expect(instance.messageLog).toStrictEqual(expectedResult);
 		});
 
 		it('nested object', () => {
@@ -390,7 +319,7 @@ describe('Fate', () => {
 
 			instance.message(testData);
 
-			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+			expect(instance.messageLog).toStrictEqual(expectedResult);
 		});
 
 		it('custom object with non function toString prop', () => {
@@ -399,7 +328,7 @@ describe('Fate', () => {
 
 			instance.message(testData);
 
-			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+			expect(instance.messageLog).toStrictEqual(expectedResult);
 		});
 
 		it('custom object with custom toString function', () => {
@@ -409,7 +338,7 @@ describe('Fate', () => {
 
 			instance.message(testData);
 
-			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+			expect(instance.messageLog).toStrictEqual(expectedResult);
 		});
 
 		it('repeated calls', () => {
@@ -432,11 +361,11 @@ describe('Fate', () => {
 			testData.flat(Infinity).forEach((d) => expectedResult.push(d.toString()));
 			instance.message(testData);
 
-			testData = new Fate<string>({payload: 'lord of the flies'});
+			testData = new Fate<string>({data: 'lord of the flies'});
 			expectedResult.push(JSON.stringify(testData));
 			instance.message(testData);
 
-			expect(instance.state.messageLog).toStrictEqual(expectedResult);
+			expect(instance.messageLog).toStrictEqual(expectedResult);
 		});
 	});
 });
