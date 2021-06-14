@@ -26,7 +26,7 @@ function createDist() {
 }
 
 function cleanDist() {
-	return build.cleaner.dir('./dist');
+	return build.clean.dir('./dist');
 }
 
 function buildSrc() {
