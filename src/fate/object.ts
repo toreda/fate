@@ -1,7 +1,10 @@
 export type FateObject<T = unknown> = {
 	data: T;
-	errorThreshold: number;
+	errorCode: string;
 	errorLog: Error[];
+	errorThreshold: number;
 	messageLog: string[];
-	status: -1 | 0 | 1;
+	status: number;
+	success: boolean;
+	executed: boolean;
 };

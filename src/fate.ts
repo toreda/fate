@@ -1,6 +1,14 @@
 import {jsonType} from '@toreda/types';
 import {FateObject} from './fate/object';
 import {FateOptions} from './fate/options';
+import {
+	StrongUInt,
+	makeUInt,
+	StrongString,
+	makeString,
+	StrongBoolean,
+	makeBoolean
+} from '@toreda/strong-types';
 
 export class Fate<T = unknown> {
 	public data: T | null;
@@ -8,8 +16,16 @@ export class Fate<T = unknown> {
 	public readonly errorLog: FateObject['errorLog'];
 	public readonly messageLog: FateObject['messageLog'];
 	public readonly errorThreshold: FateObject['errorThreshold'];
-
-	private _status: FateObject['status'];
+	/** HTTP Status code or other numerical status value (if one was returned). */
+	public readonly status: StrongUInt;
+	/** Custom error code string (if one was returned). */
+	public readonly errorCode: StrongString;
+	/** Did action complete successfully. Does not indicate whether expected, desired,
+	 * or valid data was returned by call, only that it completed without either serious
+	 * error or fewer errors than the allowed threshold. */
+	public readonly success: StrongBoolean;
+	/** Did the action execute? Fields do not change once true. */
+	public readonly executed: StrongBoolean;
 
 	constructor(options: FateOptions<T> = {}) {
 		this.data = null;
@@ -18,7 +34,10 @@ export class Fate<T = unknown> {
 		this.messageLog = [];
 		this.errorThreshold = 0;
 
-		this._status = 0;
+		this.status = makeUInt(0);
+		this.errorCode = makeString('');
+		this.success = makeBoolean(false);
+		this.executed = makeBoolean(false);
 
 		if (options.serialized) {
 			const state = this.convertStringToJson(options.serialized);
@@ -32,8 +51,8 @@ export class Fate<T = unknown> {
 			this.errorLog = state.errorLog.map(this.parseError);
 			this.messageLog = state.messageLog;
 			this.errorThreshold = state.errorThreshold;
-
-			this._status = state.status;
+			this.errorCode(state.errorCode);
+			this.status(state.status);
 		}
 
 		if (options.data) {
@@ -143,6 +162,8 @@ export class Fate<T = unknown> {
 	}
 
 	public error(error: unknown): Fate<T> {
+		this.executed(true);
+
 		if (Array.isArray(error)) {
 			error.forEach(this.error, this);
 		} else if (error instanceof Error) {
@@ -154,13 +175,15 @@ export class Fate<T = unknown> {
 		}
 
 		if (this.errorThresholdBreached()) {
-			this._status = -1;
+			this.success(false);
 		}
 
 		return this;
 	}
 
 	public message(message: unknown): Fate<T> {
+		this.executed(true);
+
 		if (Array.isArray(message)) {
 			message.forEach(this.message, this);
 		} else if (typeof message === 'string') {
@@ -174,34 +197,30 @@ export class Fate<T = unknown> {
 		return this;
 	}
 
-	public status(): FateObject['status'];
-	public status(status: number): void;
-	public status(status?: number): FateObject['status'] | void {
-		if (!status) {
-			return this._status;
-		}
+	/**
+	 * Set status and return Fate instance in one call. Used in
+	 * fail-and-return early drops, and method chaining.
+	 * @param status		HTTP Response status to set
+	 * @returns
+	 */
+	public setStatus(status: number): Fate<T> {
+		this.status(status);
+		this.executed(true);
 
-		if (typeof status !== 'number') {
-			return;
-		}
+		return this;
+	}
 
-		if (isNaN(status)) {
-			return;
-		}
+	/**
+	 * Set error code and return Fate instance in one call. Used in
+	 * fail-and-return early drops, and method chaining.
+	 * @param code			Error code to set. Each fate supports one code.
+	 * @returns
+	 */
+	public setErrorCode(code: string): Fate<T> {
+		this.errorCode(code);
+		this.executed(true);
 
-		if (status % 1 !== 0) {
-			return;
-		}
-
-		if (status > 1) {
-			return;
-		}
-
-		if (status < -1) {
-			return;
-		}
-
-		this._status = status as FateObject['status'];
+		return this;
 	}
 
 	private errorThresholdBreached(): boolean {
@@ -212,7 +231,7 @@ export class Fate<T = unknown> {
 		const state: Record<string, unknown> = {
 			data: this.data,
 			errorThreshold: this.errorThreshold,
-			status: this._status
+			status: this.status()
 		};
 
 		if (includeLogs) {

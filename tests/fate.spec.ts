@@ -1,4 +1,5 @@
-import {Fate} from 'src/fate';
+import {isType} from '@toreda/strong-types';
+import {Fate} from '../src/fate';
 
 describe('Fate', () => {
 	const instance = new Fate();
@@ -22,13 +23,23 @@ describe('Fate', () => {
 	describe('Construction', () => {
 		it('should not throw with no args', () => {
 			expect(() => {
-				new Fate();
+				const custom = new Fate();
 			}).not.toThrow();
 		});
 
 		it('should intialize code to 0', () => {
 			const custom = new Fate();
 
+			expect(custom.status()).toBe(0);
+		});
+
+		it('should initialize errorCode to empty string', () => {
+			const custom = new Fate();
+			expect(custom.errorCode()).toBe('');
+		});
+
+		it('should initialize status to 0', () => {
+			const custom = new Fate();
 			expect(custom.status()).toBe(0);
 		});
 
@@ -124,13 +135,13 @@ describe('Fate', () => {
 	});
 
 	describe('Adding Errors', () => {
-		it('should change code to FAILURE if threshold is reached', () => {
+		it('should change success to false if threshold is reached', () => {
 			Object.defineProperty(instance, 'errorThreshold', {value: 0});
-			expect(instance.status()).toBe(0);
+			instance.success(true);
 
 			instance.error('forces failure');
 
-			expect(instance.status()).toBe(-1);
+			expect(instance.success()).toBe(false);
 		});
 	});
 
@@ -153,6 +164,101 @@ describe('Fate', () => {
 			expect(result).toMatch('errorThreshold');
 			expect(result).toMatch('messageLog');
 			expect(result).toMatch('data');
+		});
+	});
+
+	describe('Helper Functions', () => {
+		beforeEach(() => {
+			instance.status.reset();
+			instance.executed.reset();
+		});
+
+		it('should set status to provided value when calling setStatus', () => {
+			const sampleStatus = 1711;
+			expect(instance.status()).toBe(0);
+			instance.setStatus(sampleStatus);
+			expect(instance.status()).toBe(sampleStatus);
+		});
+
+		it('should set executed true when calling setStatus with a number', () => {
+			const sampleStatus = 1501;
+			expect(instance.executed()).toBe(false);
+			instance.setStatus(sampleStatus);
+			expect(instance.executed()).toBe(true);
+		});
+
+		it('should return fate instance when calling setStatus with a number', () => {
+			const result = instance.setStatus(3318);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setStatus with undefined', () => {
+			const result = instance.setStatus(undefined as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setStatus with null', () => {
+			const result = instance.setStatus(null as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setStatus with a truthy non-number', () => {
+			const result = instance.setStatus(['aa'] as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setStatus with a falsey non-number', () => {
+			const result = instance.setStatus('' as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should set error code when calling setErrorCode', () => {
+			const sampleCode = 'E_EEEEE';
+			expect(instance.status()).toBe(0);
+			instance.setErrorCode(sampleCode);
+			expect(instance.errorCode()).toBe(sampleCode);
+		});
+
+		it('should set executed true when calling setErrorCode with a string', () => {
+			const sampleCode = 'E_141414';
+			expect(instance.executed()).toBe(false);
+			instance.setErrorCode(sampleCode);
+			expect(instance.executed()).toBe(true);
+		});
+
+		it('should return fate instance when calling setErrorCode with a string', () => {
+			const result = instance.setErrorCode('DD3_149711947');
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setErrorCode with undefined', () => {
+			const result = instance.setErrorCode(undefined as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setErrorCode with null', () => {
+			const result = instance.setErrorCode(null as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setErrorCode with a truthy non-number', () => {
+			const result = instance.setErrorCode(['aa'] as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setErrorCode with a falsey non-number', () => {
+			const result = instance.setErrorCode('' as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
 		});
 	});
 
