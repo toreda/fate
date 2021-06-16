@@ -170,7 +170,7 @@ describe('Fate', () => {
 	describe('Helper Functions', () => {
 		beforeEach(() => {
 			instance.status.reset();
-			instance.executed.reset();
+			instance.done.reset();
 		});
 
 		it('should set status to provided value when calling setStatus', () => {
@@ -178,13 +178,6 @@ describe('Fate', () => {
 			expect(instance.status()).toBe(0);
 			instance.setStatus(sampleStatus);
 			expect(instance.status()).toBe(sampleStatus);
-		});
-
-		it('should set executed true when calling setStatus with a number', () => {
-			const sampleStatus = 1501;
-			expect(instance.executed()).toBe(false);
-			instance.setStatus(sampleStatus);
-			expect(instance.executed()).toBe(true);
 		});
 
 		it('should return fate instance when calling setStatus with a number', () => {
@@ -224,11 +217,11 @@ describe('Fate', () => {
 			expect(instance.errorCode()).toBe(sampleCode);
 		});
 
-		it('should set executed true when calling setErrorCode with a string', () => {
+		it('should set done true when calling setErrorCode with a string', () => {
 			const sampleCode = 'E_141414';
-			expect(instance.executed()).toBe(false);
+			expect(instance.done()).toBe(false);
 			instance.setErrorCode(sampleCode);
-			expect(instance.executed()).toBe(true);
+			expect(instance.done()).toBe(true);
 		});
 
 		it('should return fate instance when calling setErrorCode with a string', () => {
@@ -259,6 +252,128 @@ describe('Fate', () => {
 			const result = instance.setErrorCode('' as any);
 			expect(isType(result, Fate)).toBe(true);
 			expect(result).toBe(instance);
+		});
+
+		it('should set done when calling setDone', () => {
+			expect(instance.done()).toBe(false);
+			instance.setDone(true);
+			expect(instance.done()).toBe(true);
+		});
+
+		it('should return fate instance when calling setDone with true', () => {
+			const result = instance.setDone(true);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setDone with false', () => {
+			const result = instance.setDone(false);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setDone with undefined', () => {
+			const result = instance.setDone(undefined as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setDone with null', () => {
+			const result = instance.setDone(null as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setDone with a truthy non-number', () => {
+			const result = instance.setDone(['aa'] as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+
+		it('should return fate instance when calling setDone with a falsey non-number', () => {
+			const result = instance.setDone('' as any);
+			expect(isType(result, Fate)).toBe(true);
+			expect(result).toBe(instance);
+		});
+	});
+
+	describe('Reset', () => {
+		it('should reset errorCode', () => {
+			const code = 'AAA9174';
+			instance.errorCode(code);
+			expect(instance.errorCode()).toBe(code);
+			instance.reset();
+			expect(instance.errorCode()).toBe('');
+		});
+
+		it('should reset errorCode when already has initial value', () => {
+			const code = '';
+			instance.errorCode(code);
+			expect(instance.errorCode()).toBe(code);
+			instance.reset();
+			expect(instance.errorCode()).toBe('');
+		});
+
+		it('should reset data', () => {
+			instance.data = {aaa: 141};
+			instance.reset();
+			expect(instance.data).toBeNull();
+		});
+
+		it('should reset done', () => {
+			instance.done(true);
+			expect(instance.done()).toBe(true);
+			instance.reset();
+			expect(instance.done()).toBe(false);
+		});
+
+		it('should reset done when done has initial value', () => {
+			instance.done(false);
+			expect(instance.done()).toBe(false);
+			instance.reset();
+			expect(instance.done()).toBe(false);
+		});
+
+		it('should reset success', () => {
+			instance.success(true);
+			expect(instance.success()).toBe(true);
+			instance.reset();
+			expect(instance.success()).toBe(false);
+		});
+
+		it('should reset success when success has initial value', () => {
+			instance.success(false);
+			expect(instance.success()).toBe(false);
+			instance.reset();
+			expect(instance.success()).toBe(false);
+		});
+
+		it('should reset messageLog array to an empty array', () => {
+			instance.messageLog.push('aaa', 'bbb', 'ccc');
+			expect(instance.messageLog.length).toBe(3);
+			instance.reset();
+			expect(instance.messageLog.length).toBe(0);
+		});
+
+		it('should reset errorLog array to an empty array', () => {
+			instance.errorLog.push(new Error('aaa'), new Error('bbb'));
+			expect(instance.errorLog.length).toBe(2);
+			instance.reset();
+			expect(instance.errorLog.length).toBe(0);
+		});
+
+		it('should reset status', () => {
+			instance.status(201);
+			expect(instance.status()).toBe(201);
+			instance.reset();
+			expect(instance.status()).toBe(0);
+		});
+
+		it('should reset status when status already has initial value', () => {
+			instance.status(0);
+			expect(instance.status()).toBe(0);
+			instance.reset();
+			expect(instance.status()).toBe(0);
 		});
 	});
 

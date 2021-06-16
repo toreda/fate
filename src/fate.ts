@@ -11,8 +11,8 @@ import {
 } from '@toreda/strong-types';
 
 export class Fate<T = unknown> {
+	/** Data containing a valid & complete object of type T when used by this object. */
 	public data: T | null;
-
 	public readonly errorLog: FateObject['errorLog'];
 	public readonly messageLog: FateObject['messageLog'];
 	public readonly errorThreshold: FateObject['errorThreshold'];
@@ -24,8 +24,8 @@ export class Fate<T = unknown> {
 	 * or valid data was returned by call, only that it completed without either serious
 	 * error or fewer errors than the allowed threshold. */
 	public readonly success: StrongBoolean;
-	/** Did the action execute? Fields do not change once true. */
-	public readonly executed: StrongBoolean;
+	/** Indicates object is no longer being actively modified and can be safely read & used */
+	public readonly done: StrongBoolean;
 
 	constructor(options: FateOptions<T> = {}) {
 		this.data = null;
@@ -35,9 +35,9 @@ export class Fate<T = unknown> {
 		this.errorThreshold = 0;
 
 		this.status = makeUInt(0);
+		this.done = makeBoolean(false);
 		this.errorCode = makeString('');
 		this.success = makeBoolean(false);
-		this.executed = makeBoolean(false);
 
 		if (options.serialized) {
 			const state = this.convertStringToJson(options.serialized);
@@ -162,8 +162,6 @@ export class Fate<T = unknown> {
 	}
 
 	public error(error: unknown): Fate<T> {
-		this.executed(true);
-
 		if (Array.isArray(error)) {
 			error.forEach(this.error, this);
 		} else if (error instanceof Error) {
@@ -175,6 +173,7 @@ export class Fate<T = unknown> {
 		}
 
 		if (this.errorThresholdBreached()) {
+			this.done(true);
 			this.success(false);
 		}
 
@@ -182,8 +181,6 @@ export class Fate<T = unknown> {
 	}
 
 	public message(message: unknown): Fate<T> {
-		this.executed(true);
-
 		if (Array.isArray(message)) {
 			message.forEach(this.message, this);
 		} else if (typeof message === 'string') {
@@ -205,7 +202,6 @@ export class Fate<T = unknown> {
 	 */
 	public setStatus(status: number): Fate<T> {
 		this.status(status);
-		this.executed(true);
 
 		return this;
 	}
@@ -218,12 +214,29 @@ export class Fate<T = unknown> {
 	 */
 	public setErrorCode(code: string): Fate<T> {
 		this.errorCode(code);
-		this.executed(true);
+		this.done(true);
 
 		return this;
 	}
 
-	private errorThresholdBreached(): boolean {
+	/**
+	 * Set done flag and return Fate instance in one call. Used in
+	 * fail-and-return early drops, and method chaining.
+	 * @param value
+	 * @returns
+	 */
+	public setDone(value: boolean = true): Fate<T> {
+		this.done(value);
+		return this;
+	}
+	/**
+	 * Check if the current number of errors has exceeded the maximum
+	 * allowed number of errors before Fate enters the failure state.
+	 * @returns			true 	- 	Fate has more errors than allowed by threshold
+	 *								and has failed.
+	 *					false 	-	Fate
+	 */
+	public errorThresholdBreached(): boolean {
 		return this.errorLog.length > this.errorThreshold;
 	}
 
@@ -273,6 +286,21 @@ export class Fate<T = unknown> {
 		error.stack = jsonObj.stack;
 
 		return error;
+	}
+
+	/**
+	 * Reset the Fate to it's initial starting state, identical freshly
+	 * instantiated Fate instance. Data Type does not change. All properties
+	 * are reset to starting state.
+	 */
+	public reset(): void {
+		this.data = null;
+		this.done.reset();
+		this.errorCode.reset();
+		this.errorLog.length = 0;
+		this.messageLog.length = 0;
+		this.status.reset();
+		this.success.reset();
 	}
 }
 
