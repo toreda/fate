@@ -1,14 +1,14 @@
+import {
+	StrongBoolean,
+	StrongString,
+	StrongUInt,
+	makeBoolean,
+	makeString,
+	makeUInt
+} from '@toreda/strong-types';
 import {jsonType} from '@toreda/types';
 import {FateObject} from './fate/object';
 import {FateOptions} from './fate/options';
-import {
-	StrongUInt,
-	makeUInt,
-	StrongString,
-	makeString,
-	StrongBoolean,
-	makeBoolean
-} from '@toreda/strong-types';
 
 export class Fate<T = unknown> {
 	/** Data containing a valid & complete object of type T when used by this object. */
@@ -253,6 +253,22 @@ export class Fate<T = unknown> {
 		}
 
 		return JSON.stringify(state, this.serializeErrors);
+	}
+
+	public getErrors(fullTrace?: false): string[];
+	public getErrors(fullTrace: true): Error[];
+	public getErrors(fullTrace?: boolean): Error[] | string[] {
+		if (fullTrace) {
+			return this.errorLog;
+		}
+
+		return this.errorLog.map((v) => {
+			return v.message;
+		});
+	}
+
+	public getMessages(): string[] {
+		return this.messageLog;
 	}
 
 	private serializeErrors(_key: string, errors: unknown): unknown {
