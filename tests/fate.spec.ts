@@ -23,7 +23,7 @@ describe('Fate', () => {
 	describe('Construction', () => {
 		it('should not throw with no args', () => {
 			expect(() => {
-				const custom = new Fate();
+				new Fate();
 			}).not.toThrow();
 		});
 
@@ -374,6 +374,45 @@ describe('Fate', () => {
 			expect(instance.status()).toBe(0);
 			instance.reset();
 			expect(instance.status()).toBe(0);
+		});
+	});
+
+	describe(`Getting Errors`, () => {
+		beforeEach(() => {
+			instance.error('Error 1');
+			instance.error('Error 2');
+			instance.error('Error 3');
+			instance.error('Error 4');
+		});
+
+		it(`should return array of errors if fullTrace is true`, () => {
+			const errors = instance.getErrors(true);
+
+			expect(Array.isArray(errors)).toBe(true);
+
+			errors.forEach((err) => {
+				expect(err).toBeInstanceOf(Error);
+			});
+		});
+
+		it(`should return array of strings if fullTrace is false`, () => {
+			const errors = instance.getErrors(false);
+
+			expect(Array.isArray(errors)).toBe(true);
+
+			errors.forEach((err) => {
+				expect(typeof err).toBe('string');
+			});
+		});
+
+		it(`should return array of strings if fullTrace is not provided`, () => {
+			const errors = instance.getErrors();
+
+			expect(Array.isArray(errors)).toBe(true);
+
+			errors.forEach((err) => {
+				expect(typeof err).toBe('string');
+			});
 		});
 	});
 
