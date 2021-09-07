@@ -1,6 +1,6 @@
 {
 	"name": "@toreda/fate",
-	"version": "0.5.5",
+	"version": "0.5.6",
 	"description": "",
 	"public": true,
 	"main": "./dist/index.js",
