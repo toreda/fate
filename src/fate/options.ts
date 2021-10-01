@@ -1,4 +1,5 @@
 import {Expand} from '@toreda/types';
+
 import {FateObject} from './object';
 
 export type FateObjectExcluded = 'errorLog' | 'messageLog' | 'success' | 'status' | 'done' | 'errorCode';

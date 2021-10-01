@@ -1,12 +1,6 @@
-import {
-	StrongBoolean,
-	StrongString,
-	StrongUInt,
-	makeBoolean,
-	makeString,
-	makeUInt
-} from '@toreda/strong-types';
-import {jsonType} from '@toreda/types';
+import {Bool, Text, UInt, boolMake, textMake, uIntMake} from '@toreda/strong-types';
+import {ANY as jsObj} from '@toreda/types';
+
 import {FateObject} from './fate/object';
 import {FateOptions} from './fate/options';
 
@@ -17,15 +11,15 @@ export class Fate<T = unknown> {
 	public readonly messageLog: FateObject['messageLog'];
 	public readonly errorThreshold: FateObject['errorThreshold'];
 	/** HTTP Status code or other numerical status value (if one was returned). */
-	public readonly status: StrongUInt;
+	public readonly status: UInt;
 	/** Custom error code string (if one was returned). */
-	public readonly errorCode: StrongString;
+	public readonly errorCode: Text;
 	/** Did action complete successfully. Does not indicate whether expected, desired,
 	 * or valid data was returned by call, only that it completed without either serious
 	 * error or fewer errors than the allowed threshold. */
-	public readonly success: StrongBoolean;
+	public readonly success: Bool;
 	/** Indicates object is no longer being actively modified and can be safely read & used */
-	public readonly done: StrongBoolean;
+	public readonly done: Bool;
 
 	constructor(options: FateOptions<T> = {}) {
 		this.data = null;
@@ -34,10 +28,10 @@ export class Fate<T = unknown> {
 		this.messageLog = [];
 		this.errorThreshold = 0;
 
-		this.status = makeUInt(0);
-		this.done = makeBoolean(false);
-		this.errorCode = makeString('');
-		this.success = makeBoolean(false);
+		this.status = uIntMake(0);
+		this.done = boolMake(false);
+		this.errorCode = textMake('');
+		this.success = boolMake(false);
 
 		if (options.serialized) {
 			const state = this.convertStringToJson(options.serialized);
@@ -295,7 +289,7 @@ export class Fate<T = unknown> {
 		return list;
 	}
 
-	private parseError(jsonObj: jsonType): Error {
+	private parseError(jsonObj: jsObj): Error {
 		const error = Error();
 
 		error.message = jsonObj.message;

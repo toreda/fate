@@ -1,10 +1,12 @@
 import {EventEmitter} from 'events';
-import {series, src} from 'gulp';
+
 import {BuildTools} from '@toreda/build-tools';
+import {series, src} from 'gulp';
 
 const eslint = require('gulp-eslint');
 
-const build: BuildTools = new BuildTools(new EventEmitter());
+const events = new EventEmitter();
+const build: BuildTools = new BuildTools({events});
 
 function runLint(): any {
 	return (
@@ -21,12 +23,12 @@ function runLint(): any {
 	);
 }
 
-function createDist() {
-	return build.create.dir('./dist', false);
+function createDist(): Promise<NodeJS.ReadWriteStream> {
+	return build.gulpSteps.createDir('./dist', true);
 }
 
-function cleanDist() {
-	return build.cleaner.dir('./dist');
+function cleanDist(): Promise<NodeJS.ReadWriteStream> {
+	return build.gulpSteps.cleanDir('./dist', true);
 }
 
 function buildSrc() {
