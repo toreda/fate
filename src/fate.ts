@@ -189,18 +189,6 @@ export class Fate<T = unknown> {
 	}
 
 	/**
-	 * Set status and return Fate instance in one call. Used in
-	 * fail-and-return early drops, and method chaining.
-	 * @param status		HTTP Response status to set
-	 * @returns
-	 */
-	public setStatus(status: number): Fate<T> {
-		this.status(status);
-
-		return this;
-	}
-
-	/**
 	 * Set error code and return Fate instance in one call. Used in
 	 * fail-and-return early drops, and method chaining.
 	 * @param code			Error code to set. Each fate supports one code.
@@ -208,21 +196,50 @@ export class Fate<T = unknown> {
 	 */
 	public setErrorCode(code: string): Fate<T> {
 		this.errorCode(code);
+		this.error(code);
+		this.setFailed();
+
+		return this;
+	}
+
+	public setFailed(): Fate<T> {
+		this.success(false);
 		this.done(true);
 
 		return this;
 	}
 
-	/**
-	 * Set done flag and return Fate instance in one call. Used in
-	 * fail-and-return early drops, and method chaining.
-	 * @param value
-	 * @returns
-	 */
-	public setDone(value: boolean = true): Fate<T> {
-		this.done(value);
+	public setSucceeded(): Fate<T> {
+		this.success(true);
+		this.done(true);
+
 		return this;
 	}
+
+	public isDoneAndFailed(): boolean {
+		if (!this.done()) {
+			return false;
+		}
+
+		if (this.success()) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public isDoneAndSucceeded(): boolean {
+		if (!this.done()) {
+			return false;
+		}
+
+		if (!this.success()) {
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Check if the current number of errors has exceeded the maximum
 	 * allowed number of errors before Fate enters the failure state.

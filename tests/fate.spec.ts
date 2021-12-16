@@ -1,6 +1,5 @@
-import {typeMatch} from '@toreda/strong-types';
-
 import {Fate} from '../src/fate';
+import {typeMatch} from '@toreda/strong-types';
 
 describe('Fate', () => {
 	const instance = new Fate();
@@ -174,127 +173,148 @@ describe('Fate', () => {
 			instance.done.reset();
 		});
 
-		it('should set status to provided value when calling setStatus', () => {
-			const sampleStatus = 1711;
-			expect(instance.status()).toBe(0);
-			instance.setStatus(sampleStatus);
-			expect(instance.status()).toBe(sampleStatus);
+		describe(`setErrorCode`, () => {
+			it(`should set error code when calling setErrorCode`, () => {
+				const sampleCode = 'E_EEEEE';
+				expect(instance.status()).toBe(0);
+				instance.setErrorCode(sampleCode);
+				expect(instance.errorCode()).toBe(sampleCode);
+			});
+
+			it(`should set done true when calling setErrorCode with a string`, () => {
+				const sampleCode = 'E_141414';
+				expect(instance.done()).toBe(false);
+				instance.setErrorCode(sampleCode);
+				expect(instance.done()).toBe(true);
+			});
+
+			it(`should return fate instance when calling setErrorCode with a string`, () => {
+				const result = instance.setErrorCode('DD3_149711947');
+				expect(typeMatch(result, Fate)).toBe(true);
+				expect(result).toBe(instance);
+			});
+
+			it(`should return fate instance when calling setErrorCode with undefined`, () => {
+				const result = instance.setErrorCode(undefined as any);
+				expect(typeMatch(result, Fate)).toBe(true);
+				expect(result).toBe(instance);
+			});
+
+			it(`should return fate instance when calling setErrorCode with null`, () => {
+				const result = instance.setErrorCode(null as any);
+				expect(typeMatch(result, Fate)).toBe(true);
+				expect(result).toBe(instance);
+			});
+
+			it(`should return fate instance when calling setErrorCode with a truthy non-number`, () => {
+				const result = instance.setErrorCode(['aa'] as any);
+				expect(typeMatch(result, Fate)).toBe(true);
+				expect(result).toBe(instance);
+			});
+
+			it(`should return fate instance when calling setErrorCode with a falsey non-number`, () => {
+				const result = instance.setErrorCode('' as any);
+				expect(typeMatch(result, Fate)).toBe(true);
+				expect(result).toBe(instance);
+			});
 		});
 
-		it('should return fate instance when calling setStatus with a number', () => {
-			const result = instance.setStatus(3318);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
+		describe(`setFailed`, () => {
+			it(`should set success to false when calling setFailed`, () => {
+				instance.success(true);
+				expect(instance.success()).toBe(true);
+				instance.setFailed();
+				expect(instance.success()).toBe(false);
+			});
+
+			it(`should set success to false when calling setFailed`, () => {
+				instance.done(false);
+				expect(instance.done()).toBe(false);
+				instance.setFailed();
+				expect(instance.done()).toBe(true);
+			});
+
+			it(`should set success to false when calling setFailed`, () => {
+				const result = instance.setFailed();
+				expect(typeMatch(result, Fate)).toBe(true);
+				expect(result).toBe(instance);
+			});
 		});
 
-		it('should return fate instance when calling setStatus with undefined', () => {
-			const result = instance.setStatus(undefined as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
+		describe(`setSucceeded`, () => {
+			it(`should set success to false when calling setSucceeded`, () => {
+				instance.success(false);
+				expect(instance.success()).toBe(false);
+				instance.setSucceeded();
+				expect(instance.success()).toBe(true);
+			});
+
+			it(`should set success to false when calling setSucceeded`, () => {
+				instance.done(false);
+				expect(instance.done()).toBe(false);
+				instance.setSucceeded();
+				expect(instance.done()).toBe(true);
+			});
+
+			it(`should set success to false when calling setSucceeded`, () => {
+				const result = instance.setSucceeded();
+				expect(typeMatch(result, Fate)).toBe(true);
+				expect(result).toBe(instance);
+			});
 		});
 
-		it('should return fate instance when calling setStatus with null', () => {
-			const result = instance.setStatus(null as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
+		describe(`isDoneAndFailed`, () => {
+			it(`should return false when done is false`, () => {
+				instance.done(false);
+				expect(instance.done()).toBe(false);
+				const result = instance.isDoneAndFailed();
+				expect(result).toBe(false);
+			});
+
+			it(`should return false when success is true`, () => {
+				instance.done(true);
+				expect(instance.done()).toBe(true);
+				instance.success(true);
+				expect(instance.success()).toBe(true);
+				const result = instance.isDoneAndFailed();
+				expect(result).toBe(false);
+			});
+
+			it(`should return true done is true and success is false`, () => {
+				instance.done(true);
+				expect(instance.done()).toBe(true);
+				instance.success(false);
+				expect(instance.success()).toBe(false);
+				const result = instance.isDoneAndFailed();
+				expect(result).toBe(true);
+			});
 		});
 
-		it('should return fate instance when calling setStatus with a truthy non-number', () => {
-			const result = instance.setStatus(['aa'] as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
+		describe(`isDoneAndSucceeded`, () => {
+			it(`should return false when done is false`, () => {
+				instance.done(false);
+				expect(instance.done()).toBe(false);
+				const result = instance.isDoneAndSucceeded();
+				expect(result).toBe(false);
+			});
 
-		it('should return fate instance when calling setStatus with a falsey non-number', () => {
-			const result = instance.setStatus('' as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
+			it(`should return false when success is false`, () => {
+				instance.done(true);
+				expect(instance.done()).toBe(true);
+				instance.success(false);
+				expect(instance.success()).toBe(false);
+				const result = instance.isDoneAndSucceeded();
+				expect(result).toBe(false);
+			});
 
-		it('should set error code when calling setErrorCode', () => {
-			const sampleCode = 'E_EEEEE';
-			expect(instance.status()).toBe(0);
-			instance.setErrorCode(sampleCode);
-			expect(instance.errorCode()).toBe(sampleCode);
-		});
-
-		it('should set done true when calling setErrorCode with a string', () => {
-			const sampleCode = 'E_141414';
-			expect(instance.done()).toBe(false);
-			instance.setErrorCode(sampleCode);
-			expect(instance.done()).toBe(true);
-		});
-
-		it('should return fate instance when calling setErrorCode with a string', () => {
-			const result = instance.setErrorCode('DD3_149711947');
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setErrorCode with undefined', () => {
-			const result = instance.setErrorCode(undefined as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setErrorCode with null', () => {
-			const result = instance.setErrorCode(null as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setErrorCode with a truthy non-number', () => {
-			const result = instance.setErrorCode(['aa'] as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setErrorCode with a falsey non-number', () => {
-			const result = instance.setErrorCode('' as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should set done when calling setDone', () => {
-			expect(instance.done()).toBe(false);
-			instance.setDone(true);
-			expect(instance.done()).toBe(true);
-		});
-
-		it('should return fate instance when calling setDone with true', () => {
-			const result = instance.setDone(true);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setDone with false', () => {
-			const result = instance.setDone(false);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setDone with undefined', () => {
-			const result = instance.setDone(undefined as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setDone with null', () => {
-			const result = instance.setDone(null as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setDone with a truthy non-number', () => {
-			const result = instance.setDone(['aa'] as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
-		});
-
-		it('should return fate instance when calling setDone with a falsey non-number', () => {
-			const result = instance.setDone('' as any);
-			expect(typeMatch(result, Fate)).toBe(true);
-			expect(result).toBe(instance);
+			it(`should return true done is true and success is false`, () => {
+				instance.done(true);
+				expect(instance.done()).toBe(true);
+				instance.success(true);
+				expect(instance.success()).toBe(true);
+				const result = instance.isDoneAndSucceeded();
+				expect(result).toBe(true);
+			});
 		});
 	});
 
