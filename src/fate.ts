@@ -1,8 +1,8 @@
 import {Bool, Text, UInt, boolMake, textMake, uIntMake} from '@toreda/strong-types';
-import {ANY as jsObj} from '@toreda/types';
 
 import {FateObject} from './fate/object';
 import {FateOptions} from './fate/options';
+import {ANY as jsObj} from '@toreda/types';
 
 export class Fate<T = unknown> {
 	/** Data containing a valid & complete object of type T when used by this object. */
@@ -28,9 +28,10 @@ export class Fate<T = unknown> {
 		this.messageLog = [];
 		this.errorThreshold = 0;
 
-		this.status = uIntMake(0);
-		this.done = boolMake(false);
 		this.errorCode = textMake('');
+		this.status = uIntMake(0);
+
+		this.done = boolMake(false);
 		this.success = boolMake(false);
 
 		if (options.serialized) {
@@ -189,6 +190,20 @@ export class Fate<T = unknown> {
 	}
 
 	/**
+	 * Set done flag and return Fate instance in one call. Also sets
+	 * success flag based on errors and errorThreshold. Used in
+	 * fail-and-return early drops, and method chaining.
+	 * @param value
+	 * @returns
+	 */
+	public setDone(value: boolean = true): Fate<T> {
+		this.success(!this.errorThresholdBreached());
+		this.done(value);
+
+		return this;
+	}
+
+	/**
 	 * Set error code and return Fate instance in one call. Used in
 	 * fail-and-return early drops, and method chaining.
 	 * @param code			Error code to set. Each fate supports one code.
@@ -196,21 +211,21 @@ export class Fate<T = unknown> {
 	 */
 	public setErrorCode(code: string): Fate<T> {
 		this.errorCode(code);
-		this.error(code);
-		this.setFailed();
-
-		return this;
-	}
-
-	public setFailed(): Fate<T> {
 		this.success(false);
 		this.done(true);
 
 		return this;
 	}
 
-	public setSucceeded(): Fate<T> {
-		this.success(true);
+	/**
+	 * Set success flag and return Fate instance in one call. Also
+	 * sets done flag to true. Used in fail-and-return early drops,
+	 * and method chaining.
+	 * @param value
+	 * @returns
+	 */
+	public setSuccess(value: boolean = true): Fate<T> {
+		this.success(value);
 		this.done(true);
 
 		return this;

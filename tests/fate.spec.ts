@@ -173,6 +173,54 @@ describe('Fate', () => {
 			instance.done.reset();
 		});
 
+		describe(`setDone`, () => {
+			it(`should set done to true when calling setDone with no arg`, () => {
+				instance.done(false);
+				expect(instance.done()).toBe(false);
+				instance.setDone();
+				expect(instance.done()).toBe(true);
+			});
+
+			it(`should set done true when calling setDone with true`, () => {
+				instance.done(false);
+				expect(instance.done()).toBe(false);
+				instance.setDone(true);
+				expect(instance.done()).toBe(true);
+			});
+
+			it(`should set done true when calling setDone with false`, () => {
+				instance.done(true);
+				expect(instance.done()).toBe(true);
+				instance.setDone(false);
+				expect(instance.done()).toBe(false);
+			});
+
+			it(`should set success to false if errorThreshold has been breached`, () => {
+				instance.success(true);
+				expect(instance.success()).toBe(true);
+				instance.error('error');
+				const errorThreshold = instance.errorThreshold;
+				(instance.errorThreshold as any) = 0;
+				instance.setDone(false);
+				expect(instance.success()).toBe(false);
+				instance.errorLog.length = 0;
+				(instance.errorThreshold as any) = errorThreshold;
+			});
+
+			it(`should set success to true if errorThreshold has not been breached`, () => {
+				instance.success(false);
+				expect(instance.success()).toBe(false);
+				instance.setDone(false);
+				expect(instance.success()).toBe(true);
+			});
+
+			it(`should return fate instance when called`, () => {
+				const result = instance.setDone();
+				expect(typeMatch(result, Fate)).toBe(true);
+				expect(result).toBe(instance);
+			});
+		});
+
 		describe(`setErrorCode`, () => {
 			it(`should set error code when calling setErrorCode`, () => {
 				const sampleCode = 'E_EEEEE';
@@ -219,45 +267,37 @@ describe('Fate', () => {
 			});
 		});
 
-		describe(`setFailed`, () => {
-			it(`should set success to false when calling setFailed`, () => {
-				instance.success(true);
-				expect(instance.success()).toBe(true);
-				instance.setFailed();
-				expect(instance.success()).toBe(false);
-			});
-
-			it(`should set success to false when calling setFailed`, () => {
-				instance.done(false);
-				expect(instance.done()).toBe(false);
-				instance.setFailed();
-				expect(instance.done()).toBe(true);
-			});
-
-			it(`should set success to false when calling setFailed`, () => {
-				const result = instance.setFailed();
-				expect(typeMatch(result, Fate)).toBe(true);
-				expect(result).toBe(instance);
-			});
-		});
-
-		describe(`setSucceeded`, () => {
-			it(`should set success to false when calling setSucceeded`, () => {
+		describe(`setSuccess`, () => {
+			it(`should set success to true when calling setSuccess with no arg`, () => {
 				instance.success(false);
 				expect(instance.success()).toBe(false);
-				instance.setSucceeded();
+				instance.setSuccess();
 				expect(instance.success()).toBe(true);
 			});
 
-			it(`should set success to false when calling setSucceeded`, () => {
+			it(`should set success to true when calling setSuccess with true`, () => {
+				instance.success(false);
+				expect(instance.success()).toBe(false);
+				instance.setSuccess(true);
+				expect(instance.success()).toBe(true);
+			});
+
+			it(`should set success to false when calling setSuccess with false`, () => {
+				instance.success(true);
+				expect(instance.success()).toBe(true);
+				instance.setSuccess(false);
+				expect(instance.success()).toBe(false);
+			});
+
+			it(`should set done to true when calling setSuccess`, () => {
 				instance.done(false);
 				expect(instance.done()).toBe(false);
-				instance.setSucceeded();
+				instance.setSuccess();
 				expect(instance.done()).toBe(true);
 			});
 
-			it(`should set success to false when calling setSucceeded`, () => {
-				const result = instance.setSucceeded();
+			it(`should return fate instance when called`, () => {
+				const result = instance.setSuccess();
 				expect(typeMatch(result, Fate)).toBe(true);
 				expect(result).toBe(instance);
 			});
