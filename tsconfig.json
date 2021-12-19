@@ -21,7 +21,7 @@
 		"strictBindCallApply": true,
 		"strictNullChecks": true,
 		"strictPropertyInitialization": true,
-		"target": "es6",
+		"target": "es2015",
 		"traceResolution": false
 	}
 }

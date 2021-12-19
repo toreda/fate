@@ -1,26 +1,39 @@
-# `@toreda/fate`
-
 ![Toreda](https://content.toreda.com/logo/toreda-logo.png)
 
-![CI](https://github.com/toreda/fate/workflows/CI/badge.svg?branch=master) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=toreda_fate&metric=coverage)](https://sonarcloud.io/dashboard?id=toreda_fate) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=toreda_fate&metric=alert_status)](https://sonarcloud.io/dashboard?id=toreda_fate)
+![CI](https://img.shields.io/github/workflow/status/toreda/fate/CI?style=for-the-badge) [![Coverage](https://img.shields.io/sonar/coverage/toreda_fate?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/dashboard?id=toreda_fate) ![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/toreda_fate?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge) ![GitHub issues](https://img.shields.io/github/issues/toreda/fate?style=for-the-badge)
 
+![GitHub package.json version (branch)](https://img.shields.io/github/package-json/v/toreda/fate/master?style=for-the-badge)
+![GitHub Release Date](https://img.shields.io/github/release-date/toreda/fate?style=for-the-badge)
+
+![license](https://img.shields.io/github/license/toreda/fate?style=for-the-badge)
+
+&nbsp;
+# `@toreda/fate`
 
 Simple interface return a result and details or context about the result.
 
-## Install
+&nbsp;
+
+# Install
 
 ***With yarn (preferred):***
-```yarn add @toreda/fate```
+```bash
+yarn add @toreda/fate
+```
 
 With NPM:
-```npm install @toreda/fate```
-
-## Usage
-
-### Library Usage
-
-#### Typescript
+```bash
+npm install @toreda/fate
 ```
+
+&nbsp;
+
+# Usage
+
+## Library Usage
+
+### Typescript
+```typescript
 import {Fate} from '@toreda/fate';
 
 function request(): Fate<string> {
@@ -58,27 +71,31 @@ const fromSerial = new Fate({serialized});
 
 ```
 
-#### Node
-```
+## Node
+```typescript
 const Fate = require('@toreda/fate');
 ```
 
-## Build
+&nbsp;
+
+# Build
 Build (or rebuild) the config package:
 
 ***With Yarn (preferred):***
-```
+```bash
 yarn install
 yarn build
 ```
 
 With NPM:
-```
+```bash
 npm install
 npm run-script build
 ```
 
-## Testing
+&nbsp;
+
+# Testing
 
 Config implements unit tests using jest. Run the following commands from the directory where config has been installed.
 
@@ -94,5 +111,15 @@ npm install
 npm run-script test
 ```
 
+&nbsp;
+# Legal
+
 ## License
 [MIT](LICENSE) &copy; Toreda, Inc.
+
+&nbsp;
+
+## Copyright
+Copyright &copy; 2019 - 2022 Toreda, Inc. All Rights Reserved.
+
+https://www.toreda.com

@@ -1,7 +1,8 @@
-import {Bool, Text, UInt, boolMake, textMake, uIntMake} from '@toreda/strong-types';
+import type {Bool, Text, UInt} from '@toreda/strong-types';
+import {boolMake, textMake, uIntMake} from '@toreda/strong-types';
 
-import {FateObject} from './fate/object';
-import {FateOptions} from './fate/options';
+import type {FateObject} from './fate/object';
+import type {FateOptions} from './fate/options';
 import {ANY as jsObj} from '@toreda/types';
 
 export class Fate<T = unknown> {

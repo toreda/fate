@@ -1,26 +1,27 @@
-import {EventEmitter} from 'events';
-
-import {BuildTools} from '@toreda/build-tools';
+import {Levels, Log} from '@toreda/log';
 import {series, src} from 'gulp';
 
-const eslint = require('gulp-eslint');
+import {Build} from '@toreda/build-tools';
+import {EventEmitter} from 'events';
 
 const events = new EventEmitter();
-const build: BuildTools = new BuildTools({events});
+const build = new Build({
+	events: events,
+	log: new Log({
+		globalLevel: Levels.ALL,
+		consoleEnabled: true
+	})
+});
 
-function runLint(): any {
-	return (
-		src(['src/**'])
-			// eslint() attaches the lint output to the "eslint" property
-			// of the file object so it can be used by other modules.
-			.pipe(eslint())
-			// eslint.format() outputs the lint results to the console.
-			// Alternatively use eslint.formatEach() (see Docs).
-			.pipe(eslint.format())
-			// To have the process exit with an error code (1) on
-			// lint error, return the stream and pipe to failAfterError last.
-			.pipe(eslint.failAfterError())
-	);
+async function runLint(): Promise<NodeJS.ReadWriteStream> {
+	await build.linter.execute({
+		formatterId: 'stylish',
+		srcPatterns: ['./src/**.ts', './src/**/**.ts']
+	});
+
+	return src(['*'], {
+		read: false
+	});
 }
 
 function createDist(): Promise<NodeJS.ReadWriteStream> {
