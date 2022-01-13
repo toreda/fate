@@ -561,19 +561,16 @@
   version "0.6.12"
   resolved "https://registry.yarnpkg.com/@toreda/log/-/log-0.6.12.tgz#0435f7f9a867e343dd347f4874e39917040453d7"
 
-"@toreda/log@^0.6.5":
-  version "0.6.9"
-  resolved "https://registry.yarnpkg.com/@toreda/log/-/log-0.6.9.tgz#7e9d22ffdfe8be2eaf234a05009c6e42efaf42f4"
-
 "@toreda/prettier-config@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@toreda/prettier-config/-/prettier-config-1.0.1.tgz#bd6c47352aa99560617f0f4a29f16ab7c3070b86"
 
-"@toreda/strong-types@^0.28.2":
-  version "0.28.2"
-  resolved "https://registry.yarnpkg.com/@toreda/strong-types/-/strong-types-0.28.2.tgz#c773144da42d7ec4530d4d82863b29b3f001ea1c"
+"@toreda/strong-types@^0.28.3":
+  version "0.28.3"
+  resolved "https://registry.yarnpkg.com/@toreda/strong-types/-/strong-types-0.28.3.tgz#01f561b2166b67dbc97ed50cbc656cd7842c8b31"
+  integrity sha512-4VJArNMQJ6PlEkxx0Dcmartxp82mpN3aaJ0izq7RZpvXPY8zdVV50oxI4P1TluYAeFca/pe8rJMuoga0bZny8g==
   dependencies:
-    "@toreda/log" "^0.6.5"
+    "@toreda/log" "^0.6.12"
     big.js "^6.1.1"
 
 "@toreda/types@^2.6.0":
