@@ -565,10 +565,10 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@toreda/prettier-config/-/prettier-config-1.0.1.tgz#bd6c47352aa99560617f0f4a29f16ab7c3070b86"
 
-"@toreda/strong-types@^0.28.3":
-  version "0.28.3"
-  resolved "https://registry.yarnpkg.com/@toreda/strong-types/-/strong-types-0.28.3.tgz#01f561b2166b67dbc97ed50cbc656cd7842c8b31"
-  integrity sha512-4VJArNMQJ6PlEkxx0Dcmartxp82mpN3aaJ0izq7RZpvXPY8zdVV50oxI4P1TluYAeFca/pe8rJMuoga0bZny8g==
+"@toreda/strong-types@^0.28.4":
+  version "0.28.4"
+  resolved "https://registry.yarnpkg.com/@toreda/strong-types/-/strong-types-0.28.4.tgz#0b83cfa902d35df684ccddc54ee24b876543ddc9"
+  integrity sha512-+QC6WwE8+UXGC2Fy3+Kz0W3VlB5+TtGQlp1TqOrrHNkJdgBGly+jaojLbk3ebRQoOHJAcd6o1j9310WzcSfNvw==
   dependencies:
     "@toreda/log" "^0.6.12"
     big.js "^6.1.1"
