@@ -10,7 +10,7 @@ export class Fate<T = unknown> {
 	public data: T | null;
 	public readonly errorLog: FateObject['errorLog'];
 	public readonly messageLog: FateObject['messageLog'];
-	public readonly errorThreshold: FateObject['errorThreshold'];
+	public errorThreshold: FateObject['errorThreshold'];
 	/** HTTP Status code or other numerical status value (if one was returned). */
 	public readonly status: UInt;
 	/** Custom error code string (if one was returned). */
@@ -212,7 +212,6 @@ export class Fate<T = unknown> {
 	 */
 	public setErrorCode(code: string): Fate<T> {
 		this.errorCode(code);
-		this.success(false);
 		this.done(true);
 
 		return this;
@@ -229,6 +228,19 @@ export class Fate<T = unknown> {
 		this.success(value);
 		this.done(true);
 
+		return this;
+	}
+
+	public checkForSuccessOrFailure(errorThreshold = this.errorThreshold): Fate<T> {
+		if (this.errorLog.length >= errorThreshold) {
+			this.success(false);
+			this.done(true);
+		}
+
+		if (this.data) {
+			this.setSuccess(true);
+			this.done(true);
+		}
 		return this;
 	}
 
