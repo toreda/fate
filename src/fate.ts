@@ -235,12 +235,17 @@ export class Fate<T = unknown> {
 		if (this.errorLog.length >= errorThreshold) {
 			this.success(false);
 			this.done(true);
+			return this;
 		}
 
 		if (this.data) {
 			this.setSuccess(true);
 			this.done(true);
+			return this;
 		}
+		this.success(true);
+		this.done(true);
+
 		return this;
 	}
 
