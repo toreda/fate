@@ -10,7 +10,7 @@ export class Fate<T = unknown> {
 	public data: T | null;
 	public readonly errorLog: FateObject['errorLog'];
 	public readonly messageLog: FateObject['messageLog'];
-	public errorThreshold: FateObject['errorThreshold'];
+	public readonly errorThreshold: UInt;
 	/** HTTP Status code or other numerical status value (if one was returned). */
 	public readonly status: UInt;
 	/** Custom error code string (if one was returned). */
@@ -27,8 +27,8 @@ export class Fate<T = unknown> {
 
 		this.errorLog = [];
 		this.messageLog = [];
-		this.errorThreshold = 0;
 
+		this.errorThreshold = uIntMake(0);
 		this.errorCode = textMake('');
 		this.status = uIntMake(0);
 
@@ -46,7 +46,7 @@ export class Fate<T = unknown> {
 
 			this.errorLog = state.errorLog.map(this.parseError);
 			this.messageLog = state.messageLog;
-			this.errorThreshold = state.errorThreshold;
+			this.errorThreshold(state.errorThreshold);
 			this.errorCode(state.errorCode);
 			this.status(state.status);
 		}
@@ -56,7 +56,7 @@ export class Fate<T = unknown> {
 		}
 
 		if (options.errorThreshold != null) {
-			this.errorThreshold = options.errorThreshold;
+			options.errorThreshold = this.errorThreshold();
 		}
 	}
 
@@ -232,17 +232,12 @@ export class Fate<T = unknown> {
 	}
 
 	public checkForSuccessOrFailure(errorThreshold = this.errorThreshold): Fate<T> {
-		if (this.errorLog.length >= errorThreshold) {
+		if (this.errorLog.length >= errorThreshold()) {
 			this.success(false);
 			this.done(true);
 			return this;
 		}
 
-		if (this.data) {
-			this.setSuccess(true);
-			this.done(true);
-			return this;
-		}
 		this.success(true);
 		this.done(true);
 
@@ -281,7 +276,7 @@ export class Fate<T = unknown> {
 	 *					false 	-	Fate
 	 */
 	public errorThresholdBreached(): boolean {
-		return this.errorLog.length > this.errorThreshold;
+		return this.errorLog.length > this.errorThreshold();
 	}
 
 	public serialize(includeLogs = true): string {
