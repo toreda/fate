@@ -282,7 +282,7 @@ export class Fate<T = unknown> {
 	public serialize(includeLogs = true): string {
 		const state: Record<string, unknown> = {
 			data: this.data,
-			errorThreshold: this.errorThreshold,
+			errorThreshold: this.errorThreshold(),
 			status: this.status()
 		};
 
