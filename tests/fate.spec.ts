@@ -14,8 +14,8 @@ describe('Fate', () => {
 
 	afterEach(() => {
 		instance.status(0);
+		instance.errorThreshold(999);
 		instance.errorLog.length = 0;
-		Object.defineProperty(instance, 'errorThreshold', {value: Infinity});
 		instance.messageLog.length = 0;
 		instance.data = null;
 	});
@@ -46,7 +46,7 @@ describe('Fate', () => {
 		it('should intialize errorThreshold to 0', () => {
 			const custom = new Fate();
 
-			expect(custom.errorThreshold).toBe(0);
+			expect(custom.errorThreshold()).toBe(0);
 		});
 
 		it('should intialize errorLog to []', () => {
@@ -72,8 +72,9 @@ describe('Fate', () => {
 
 			expect(custom.data).toStrictEqual(options.data);
 			expect(custom.errorLog).toStrictEqual(options.errorLog);
-			expect(custom.errorThreshold).toBe(options.errorThreshold);
 			expect(custom.messageLog).toStrictEqual(options.messageLog);
+
+			expect(custom.errorThreshold()).toBe(options.errorThreshold);
 			expect(custom.status()).toBe(options.status);
 		});
 
@@ -83,11 +84,10 @@ describe('Fate', () => {
 
 			const custom = new Fate({serialized, errorThreshold, data});
 
+			expect(custom.errorThreshold()).toBe(options.errorThreshold);
 			expect(custom.status()).toBe(options.status);
 			expect(custom.errorLog).toStrictEqual(options.errorLog);
 			expect(custom.messageLog).toStrictEqual(options.messageLog);
-
-			expect(custom.errorThreshold).toBe(errorThreshold);
 			expect(custom.data).toStrictEqual(data);
 		});
 
@@ -136,7 +136,7 @@ describe('Fate', () => {
 
 	describe('Adding Errors', () => {
 		it('should change success to false if threshold is reached', () => {
-			Object.defineProperty(instance, 'errorThreshold', {value: 0});
+			instance.errorThreshold(0);
 			instance.success(true);
 
 			instance.error('forces failure');
@@ -199,12 +199,12 @@ describe('Fate', () => {
 				instance.success(true);
 				expect(instance.success()).toBe(true);
 				instance.error('error');
-				const errorThreshold = instance.errorThreshold;
-				(instance.errorThreshold as any) = 0;
+				const errorThreshold = instance.errorThreshold();
+				instance.errorThreshold(0);
 				instance.setDone(false);
 				expect(instance.success()).toBe(false);
 				instance.errorLog.length = 0;
-				(instance.errorThreshold as any) = errorThreshold;
+				instance.errorThreshold(errorThreshold);
 			});
 
 			it(`should set success to true if errorThreshold has not been breached`, () => {
