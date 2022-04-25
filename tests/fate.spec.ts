@@ -14,7 +14,7 @@ describe('Fate', () => {
 
 	afterEach(() => {
 		instance.status(0);
-		instance.errorThreshold(Infinity);
+		instance.errorThreshold(999);
 		instance.errorLog.length = 0;
 		instance.messageLog.length = 0;
 		instance.data = null;
@@ -199,12 +199,12 @@ describe('Fate', () => {
 				instance.success(true);
 				expect(instance.success()).toBe(true);
 				instance.error('error');
-				const errorThreshold = instance.errorThreshold;
-				(instance.errorThreshold as any) = 0;
+				const errorThreshold = instance.errorThreshold();
+				instance.errorThreshold(0);
 				instance.setDone(false);
 				expect(instance.success()).toBe(false);
 				instance.errorLog.length = 0;
-				(instance.errorThreshold as any) = errorThreshold;
+				instance.errorThreshold(errorThreshold);
 			});
 
 			it(`should set success to true if errorThreshold has not been breached`, () => {
