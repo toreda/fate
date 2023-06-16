@@ -271,7 +271,10 @@ export class Fate<T = unknown> {
 		const state: Record<string, unknown> = {
 			data: this.data,
 			errorThreshold: this.errorThreshold,
-			status: this.status()
+			status: this.status(),
+			done: this.done(),
+			errorCode: this.errorCode(),
+			success: this.success()
 		};
 
 		if (includeLogs) {

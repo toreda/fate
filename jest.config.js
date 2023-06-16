@@ -9,11 +9,11 @@ module.exports = {
 		'coverage/',
 		'webpack.config.js'
 	],
-	moduleFileExtensions: ['ts', 'js', 'json'],
-	moduleNameMapper: {'^src/(.*)': '<rootDir>/src/$1'},
-	testEnvironment: 'node',
 	testPathIgnorePatterns: ['/node_modules/'],
+	transform: {
+		'^.+\\.(t|j)sx?$': '@swc/jest'
+	},
 	testRegex: '(/__tests__/.*|(\\.|/)(spec))\\.ts$',
-	testResultsProcessor: 'jest-sonar-reporter',
-	transform: {'^.+\\.tsx?$': 'ts-jest'}
+	moduleFileExtensions: ['ts', 'js', 'json'],
+	testResultsProcessor: 'jest-sonar-reporter'
 };

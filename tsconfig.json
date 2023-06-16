@@ -23,5 +23,8 @@
 		"strictPropertyInitialization": true,
 		"target": "es2015",
 		"traceResolution": false
+	},
+	"ts-node": {
+		"swc": true
 	}
 }
