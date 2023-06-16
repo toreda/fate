@@ -49,6 +49,7 @@ export class Fate<T = unknown> {
 			this.errorThreshold = state.errorThreshold;
 			this.errorCode(state.errorCode);
 			this.status(state.status);
+			this.success(state.success);
 		}
 
 		if (options.data) {
