@@ -5,8 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.9] - 2024-02-07
+## [0.7.0] - 2024-02-08
 * Fixed `Fate` constructor bug where `fate.data` was not set to provided `init.data` when the value evaluated to falsy.
+* Added `fate.ok()` method which returns the Fate's current `boolean` success or fail. Unlike `success(...)` it does not accept any arguments and will shorten status checks.
 
 
 ## [0.6.8] - 2023-06-16

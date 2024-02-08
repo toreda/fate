@@ -155,6 +155,32 @@ describe('Fate', () => {
 		});
 	});
 
+	describe('Implementation', () => {
+		describe('ok', () => {
+			it(`should return false when fate object has failure status`, () => {
+				const fate = new Fate<never>();
+				fate.setErrorCode('oneone');
+
+				expect(fate.success()).toBe(false);
+				expect(fate.ok()).toBe(false);
+			});
+
+			it(`should return true when fate object has failure status`, () => {
+				const fate = new Fate<never>();
+				fate.setSuccess();
+
+				expect(fate.success()).toBe(true);
+				expect(fate.ok()).toBe(true);
+			});
+
+			it(`should return false for a newly created fate object`, () => {
+				const custom = new Fate<never>();
+				expect(custom.success()).toBe(false);
+				expect(custom.ok()).toBe(false);
+			});
+		});
+	});
+
 	describe(`Serialization`, () => {
 		it(`should store and recreate data from original serialized fate object`, async () => {
 			const data = {

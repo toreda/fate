@@ -157,6 +157,10 @@ export class Fate<T = unknown> {
 		return true;
 	}
 
+	public ok(): boolean {
+		return this.success();
+	}
+
 	public error(error: unknown): Fate<T> {
 		if (Array.isArray(error)) {
 			error.forEach(this.error, this);
