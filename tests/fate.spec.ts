@@ -1,6 +1,40 @@
 import {Fate} from '../src/fate';
 import {typeMatch} from '@toreda/strong-types';
 
+const INIT_VALUES: {
+	value: unknown;
+	label: string;
+}[] = [
+	{
+		value: true,
+		label: 'boolean (true)'
+	},
+	{
+		value: false,
+		label: 'boolean (false)'
+	},
+	{
+		value: 1,
+		label: 'a truthy number (1)'
+	},
+	{
+		value: 0,
+		label: 'zero'
+	},
+	{
+		value: [],
+		label: 'an empty array'
+	},
+	{
+		value: [1, 2, 3, 4],
+		label: 'an array of numbers'
+	},
+	{
+		value: {},
+		label: 'an empty object'
+	}
+];
+
 describe('Fate', () => {
 	const instance = new Fate();
 	const options = {
@@ -20,7 +54,7 @@ describe('Fate', () => {
 		instance.data = null;
 	});
 
-	describe('Construction', () => {
+	describe('Constructor', () => {
 		it('should not throw with no args', () => {
 			expect(() => {
 				new Fate();
@@ -106,6 +140,18 @@ describe('Fate', () => {
 				const result = new Fate({serialized: '{"errorThreshold": -1}'});
 				console.log(result);
 			}).toThrow();
+		});
+
+		describe('Init Values', () => {
+			for (const init of INIT_VALUES) {
+				it(`should set data to init.data the value is ${init.label}`, () => {
+					const custom = new Fate<boolean>({
+						data: init.value as any
+					});
+
+					expect(custom.data).toBe(init.value);
+				});
+			}
 		});
 	});
 

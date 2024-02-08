@@ -25,6 +25,9 @@
 		"traceResolution": false
 	},
 	"ts-node": {
-		"swc": true
+		"swc": true,
+		"compilerOptions": {
+			"noEmit": true
+		}
 	}
 }

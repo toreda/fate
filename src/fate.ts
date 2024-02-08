@@ -24,7 +24,6 @@ export class Fate<T = unknown> {
 
 	constructor(options: FateOptions<T> = {}) {
 		this.data = null;
-
 		this.errorLog = [];
 		this.messageLog = [];
 		this.errorThreshold = 0;
@@ -52,7 +51,7 @@ export class Fate<T = unknown> {
 			this.success(state.success);
 		}
 
-		if (options.data) {
+		if (typeof options.data !== 'undefined') {
 			this.data = options.data;
 		}
 
