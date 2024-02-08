@@ -109,6 +109,26 @@ describe('Fate', () => {
 		});
 	});
 
+	describe(`Serialization`, () => {
+		it(`should store and recreate data from original serialized fate object`, async () => {
+			const data = {
+				aaa: 1976141,
+				bbb: '9719714'
+			};
+
+			const fate = new Fate<unknown>();
+			fate.data = data;
+
+			const serialized = fate.serialize();
+
+			const fate2 = new Fate<unknown>({
+				serialized: serialized
+			});
+
+			expect(fate2.data).toStrictEqual(data);
+		});
+	});
+
 	describe.each(['Error', 'Message'])('Adding %ss', (name) => {
 		const func = name.toLowerCase();
 		const log = `${func}Log`;
