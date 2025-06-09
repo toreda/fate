@@ -7,5 +7,6 @@ coverage
 yarn-debug.log
 yarn-error.log
 test-report.xml
+.git
 .github
 examples

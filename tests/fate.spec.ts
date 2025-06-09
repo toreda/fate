@@ -1,6 +1,40 @@
 import {Fate} from '../src/fate';
 import {typeMatch} from '@toreda/strong-types';
 
+const INIT_VALUES: {
+	value: unknown;
+	label: string;
+}[] = [
+	{
+		value: true,
+		label: 'boolean (true)'
+	},
+	{
+		value: false,
+		label: 'boolean (false)'
+	},
+	{
+		value: 1,
+		label: 'a truthy number (1)'
+	},
+	{
+		value: 0,
+		label: 'zero'
+	},
+	{
+		value: [],
+		label: 'an empty array'
+	},
+	{
+		value: [1, 2, 3, 4],
+		label: 'an array of numbers'
+	},
+	{
+		value: {},
+		label: 'an empty object'
+	}
+];
+
 describe('Fate', () => {
 	const instance = new Fate();
 	const options = {
@@ -20,7 +54,7 @@ describe('Fate', () => {
 		instance.data = null;
 	});
 
-	describe('Construction', () => {
+	describe('Constructor', () => {
 		it('should not throw with no args', () => {
 			expect(() => {
 				new Fate();
@@ -106,6 +140,64 @@ describe('Fate', () => {
 				const result = new Fate({serialized: '{"errorThreshold": -1}'});
 				console.log(result);
 			}).toThrow();
+		});
+
+		describe('Init Values', () => {
+			for (const init of INIT_VALUES) {
+				it(`should set data to init.data the value is ${init.label}`, () => {
+					const custom = new Fate<boolean>({
+						data: init.value as any
+					});
+
+					expect(custom.data).toBe(init.value);
+				});
+			}
+		});
+	});
+
+	describe('Implementation', () => {
+		describe('ok', () => {
+			it(`should return false when fate object has failure status`, () => {
+				const fate = new Fate<never>();
+				fate.setErrorCode('oneone');
+
+				expect(fate.success()).toBe(false);
+				expect(fate.ok()).toBe(false);
+			});
+
+			it(`should return true when fate object has failure status`, () => {
+				const fate = new Fate<never>();
+				fate.setSuccess();
+
+				expect(fate.success()).toBe(true);
+				expect(fate.ok()).toBe(true);
+			});
+
+			it(`should return false for a newly created fate object`, () => {
+				const custom = new Fate<never>();
+				expect(custom.success()).toBe(false);
+				expect(custom.ok()).toBe(false);
+			});
+		});
+	});
+
+	describe(`Serialization`, () => {
+		it(`should store and recreate data from original serialized fate object`, async () => {
+			const data = {
+				aaa: 1976141,
+				bbb: '9719714'
+			};
+
+			const fate = new Fate<unknown>();
+			fate.data = data;
+
+			const serialized = fate.serialize();
+
+			const fate2 = new Fate<unknown>({
+				serialized: serialized
+			});
+
+			expect(fate2.data).toStrictEqual(data);
 		});
 	});
 

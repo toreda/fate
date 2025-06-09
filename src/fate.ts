@@ -24,7 +24,6 @@ export class Fate<T = unknown> {
 
 	constructor(options: FateOptions<T> = {}) {
 		this.data = null;
-
 		this.errorLog = [];
 		this.messageLog = [];
 
@@ -49,9 +48,10 @@ export class Fate<T = unknown> {
 			this.errorThreshold(state.errorThreshold);
 			this.errorCode(state.errorCode);
 			this.status(state.status);
+			this.success(state.success);
 		}
 
-		if (options.data) {
+		if (typeof options.data !== 'undefined') {
 			this.data = options.data;
 		}
 
@@ -155,6 +155,10 @@ export class Fate<T = unknown> {
 		}
 
 		return true;
+	}
+
+	public ok(): boolean {
+		return this.success();
 	}
 
 	public error(error: unknown): Fate<T> {
@@ -282,8 +286,11 @@ export class Fate<T = unknown> {
 	public serialize(includeLogs = true): string {
 		const state: Record<string, unknown> = {
 			data: this.data,
-			errorThreshold: this.errorThreshold(),
-			status: this.status()
+			errorThreshold: this.errorThreshold,
+			status: this.status(),
+			done: this.done(),
+			errorCode: this.errorCode(),
+			success: this.success()
 		};
 
 		if (includeLogs) {

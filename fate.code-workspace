@@ -16,7 +16,8 @@
 			"LICENSE": true,
 			"node_modules": true,
 			"sonar-project.properties": true,
-			"yarn.lock": true
+			"yarn.lock": true,
+			"test-report.xml": true
 		}
 	}
 }
